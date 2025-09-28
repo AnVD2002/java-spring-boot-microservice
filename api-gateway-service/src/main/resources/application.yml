@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: api-gateway-service
+
+jwt:
+  public-key: classpath:keys/public.pem
+

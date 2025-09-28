@@ -38,3 +38,9 @@ spring:
 
   liquibase:
     change-log: classpath:config.liquibase/changelog/master.xml
+
+
+jwt:
+  public-key: classpath:keys/private.pem
+  expiration: 3600000
+  refresh-expiration: 2592000000

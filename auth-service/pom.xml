@@ -112,7 +112,13 @@
 			<artifactId>common-lib-service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 	<dependencyManagement>
 		<dependencies>
