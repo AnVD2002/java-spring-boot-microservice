@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle all other exceptions that are not explicitly handled.
+     * handle generic Exception
      * @param ex
      * @param request
      * @return

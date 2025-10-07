@@ -1,7 +1,32 @@
 spring:
   application:
     name: api-gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+
 
 jwt:
   public-key: classpath:keys/public.pem
+
+security:
+  whitelist:
+    - /api/v1/auth/register
+    - /api/v1/auth/login
+    - /api/v1/auth/forgot-password
+    - /api/v1/auth/verify-account
+    - /api/v1/auth/refresh-token
+    - /api/v1/public/**
 

@@ -1,7 +1,10 @@
 package com.project.common_lib_service.config;
 
+import com.project.common_lib_service.dto.CustomUserPrincipal;
 import lombok.NonNull;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 
@@ -9,20 +12,20 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component("myAuditorProvider")
-public class AuditorAwareImpl implements AuditorAware<Long> {
+public class AuditorAwareImpl implements AuditorAware<String> {
     @Override
     @NonNull
-    public Optional<Long> getCurrentAuditor() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
-//            return Optional.empty();
-//        }
-//
-//        Object principal = authentication.getPrincipal();
-//        if (principal instanceof CustomUserDetails userDetails) {
-//            return Optional.of(userDetails.getId());
-//        }
+    public Optional<String> getCurrentAuditor() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return Optional.empty();
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserPrincipal customPrincipal) {
+            return Optional.ofNullable(customPrincipal.getUsername());
+        }
         return Optional.empty();
     }
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serial;
+import java.util.UUID;
 
 
 @Getter
@@ -13,6 +14,7 @@ import java.io.Serial;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 @Table(name = "accounts")
 public class Account extends BaseEntity {
 
@@ -23,7 +25,7 @@ public class Account extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_seq")
     @SequenceGenerator(name = "account_seq", sequenceName = "account_id_seq", allocationSize = 1)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;
@@ -33,4 +35,7 @@ public class Account extends BaseEntity {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "status", nullable = false)
+    private Integer status;
 }

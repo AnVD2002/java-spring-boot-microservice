@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: common-lib-service
+
+jwt:
+  public-key: classpath:keys/public.pem
+  private-key: classpath:keys/private.pem
+
+  default-whitelist:
+      - /actuator/health
+      - /swagger-ui/**
+      - /v3/api-docs/**

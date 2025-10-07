@@ -1,6 +1,6 @@
 package com.project.auth_service.service;
 
-import com.project.auth_service.dto.EmailCodeEvent;
+import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.utils.LoginType;
 import com.project.common_lib_service.exception.SystemError;
 import com.project.common_lib_service.exception.SystemException;
@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Service;
@@ -24,9 +24,10 @@ import java.util.Random;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService {
+public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
 
     private final WebClient webClient;
+
     private final OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -38,11 +39,12 @@ public class AuthServiceImpl implements AuthService {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
+    @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+    private String userInfoUri;
+
     private static final String CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     private static final Random RANDOM = new Random();
-
-    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private static final String TOPIC = "email-code-topic";
 
@@ -80,10 +82,6 @@ public class AuthServiceImpl implements AuthService {
                         throw new SystemException(SystemError.ERROR_030);
                     }
 
-                    String verificationCode = generateCode();
-
-                    kafkaTemplate.send(TOPIC, new EmailCodeEvent(email, verificationCode));
-
                     return Optional.of(tokenResponse)
                             .map(res -> res.get("access_token"))
                             .map(Object::toString)
@@ -102,15 +100,14 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-
-    public static String generateCode() {
-        StringBuilder sb = new StringBuilder(6);
-        for (int i = 0; i < 6; i++) {
-            int index = RANDOM.nextInt(CHAR_POOL.length());
-            sb.append(CHAR_POOL.charAt(index));
-        }
-        return sb.toString();
-    }
+//    public static String generateCode() {
+//        StringBuilder sb = new StringBuilder(6);
+//        for (int i = 0; i < 6; i++) {
+//            int index = RANDOM.nextInt(CHAR_POOL.length());
+//            sb.append(CHAR_POOL.charAt(index));
+//        }
+//        return sb.toString();
+//    }
 
     @Override
     public String generateUrl(HttpServletRequest request, String registrationId) {
@@ -120,6 +117,15 @@ public class AuthServiceImpl implements AuthService {
             throw new SystemException(SystemError.ERROR_500);
         }
         return authorizationRequest.getAuthorizationRequestUri();
+    }
+
+    public GoogleUserInfo getGoogleUserInfo(String accessToken) {
+        return webClient.get()
+                .uri(userInfoUri)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(GoogleUserInfo.class)
+                .block();
     }
 
 

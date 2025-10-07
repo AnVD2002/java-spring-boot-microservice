@@ -5,12 +5,14 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serial;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 @Table(name = "roles")
 public class Role extends BaseEntity {
 
@@ -21,7 +23,7 @@ public class Role extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_seq")
     @SequenceGenerator(name = "role_seq", sequenceName = "role_id_seq", allocationSize = 1)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "name", unique = true, nullable = false)
     private String name;

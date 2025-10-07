@@ -1,4 +1,4 @@
-package com.project.auth_service.dto;
+package com.project.auth_service.dto.event;
 
 import lombok.*;
 

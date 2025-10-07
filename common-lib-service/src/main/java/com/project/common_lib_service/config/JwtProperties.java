@@ -1,4 +1,5 @@
-package com.project.auth_service.config;
+package com.project.common_lib_service.config;
+
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class JwtProperties {
     private String privateKey;
+    private String publicKey;
     private long expiration;
     private long refreshExpiration;
 }

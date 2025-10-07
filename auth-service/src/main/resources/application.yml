@@ -35,12 +35,11 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
-
   liquibase:
     change-log: classpath:config.liquibase/changelog/master.xml
 
 
 jwt:
-  public-key: classpath:keys/private.pem
   expiration: 3600000
   refresh-expiration: 2592000000
+  private-key: classpath:keys/private.pem

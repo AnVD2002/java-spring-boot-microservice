@@ -1,6 +1,5 @@
-package com.project.auth_service.dto.Request;
+package com.project.auth_service.dto.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -12,9 +11,8 @@ import lombok.*;
 @Builder
 public class AccountRegistrationRequest {
 
-    @NotBlank(message = "Email must not be blank")
-    @Email(message = "Invalid email format")
-    private String email;
+    @NotBlank
+    private String token;
 
     @NotBlank(message = "Username must not be blank")
     @Size(min = 6, max = 20, message = "Username must be between 6 and 20 characters")

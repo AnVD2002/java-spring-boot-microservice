@@ -5,12 +5,14 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serial;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 @Table(name = "blacklist_tokens")
 public class BlacklistToken extends BaseEntity {
 
@@ -21,13 +23,13 @@ public class BlacklistToken extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "blacklist_token_seq")
     @SequenceGenerator(name = "blacklist_token_seq", sequenceName = "blacklist_token_id_seq", allocationSize = 1)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "access_token", unique = true, nullable = false, length = 512)
     private String accessToken;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UUID userId;
 
     @Column(name = "reason", nullable = false)
     private String reason;

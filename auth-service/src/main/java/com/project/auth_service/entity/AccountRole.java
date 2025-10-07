@@ -5,12 +5,14 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serial;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
 @Table(name = "account_roles")
 public class AccountRole extends BaseEntity {
 
@@ -21,11 +23,11 @@ public class AccountRole extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_role_seq")
     @SequenceGenerator(name = "account_role_seq", sequenceName = "account_role_id_seq", allocationSize = 1)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "account_id", nullable = false)
-    private Long accountId;
+    private UUID accountId;
 
     @Column(name = "role_id", nullable = false)
-    private Long roleId;
+    private UUID roleId;
 }
