@@ -3,6 +3,7 @@ package com.project.auth_service.entity;
 import com.project.common_lib_service.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.io.Serial;
 import java.time.LocalDateTime;
@@ -21,8 +22,7 @@ public class AccountToken extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_token_seq")
-    @SequenceGenerator(name = "account_token_seq", sequenceName = "account_token_id_seq", allocationSize = 1)
+    @UuidGenerator
     @Column(name = "id")
     private UUID id;
 
@@ -32,10 +32,13 @@ public class AccountToken extends BaseEntity {
     @Column(name = "refresh_token", nullable = false, unique = true)
     private String refreshToken;
 
-    @Column(name = "issued_at", nullable = false)
+    @Column(name = "issued_at")
+    private LocalDateTime issuedAt;
+
+    @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
-    @Column(name = "is_revoke", nullable = false)
+    @Column(name = "is_revoked", nullable = false)
     private Boolean isRevoked;
 
     @Column(name = "provider", nullable = false)

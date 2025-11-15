@@ -1,32 +1,48 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: api-gateway-service
+
+  main:
+    web-application-type: reactive
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
   cloud:
+    config:
+      enabled: false   # Tắt hoàn toàn Config Server
+
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/**
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/users/**
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            # ==== AUTH SERVICE ====
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/v1/auth/**
+              filters:
+                - StripPrefix=2
 
+            # ==== USER SERVICE ====
+            - id: user-service
+              uri: lb://user-service
+              predicates:
+                - Path=/api/v1/users/**
+              filters:
+                - StripPrefix=2
 
-jwt:
-  public-key: classpath:keys/public.pem
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 
-security:
-  whitelist:
-    - /api/v1/auth/register
-    - /api/v1/auth/login
-    - /api/v1/auth/forgot-password
-    - /api/v1/auth/verify-account
-    - /api/v1/auth/refresh-token
-    - /api/v1/public/**
 

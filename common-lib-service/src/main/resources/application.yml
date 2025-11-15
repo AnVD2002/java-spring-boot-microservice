@@ -2,11 +2,37 @@ spring:
   application:
     name: common-lib-service
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
 jwt:
   public-key: classpath:keys/public.pem
   private-key: classpath:keys/private.pem
 
+security:
+  whitelist:
+    - /api/v1/auth/register
+    - /api/v1/auth/login
+    - /api/v1/auth/forgot-password
+    - /api/v1/auth/verify-account
+    - /api/v1/auth/refresh-token
+    - /api/v1/public/**
   default-whitelist:
-      - /actuator/health
-      - /swagger-ui/**
-      - /v3/api-docs/**
+    - /actuator/health
+    - /swagger-ui/**
+    - /v3/api-docs/**
+
+services:
+  urls:
+    user-service: http://localhost:8081
+    order-service: http://localhost:8082
+    payment-service: http://localhost:8083
+    product-service: http://localhost:8084

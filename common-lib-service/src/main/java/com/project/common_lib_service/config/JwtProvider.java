@@ -28,26 +28,48 @@ import java.util.function.Function;
 public class JwtProvider {
 
     private final JwtProperties jwtProperties;
-
-    private PrivateKey privateKey;
-    
-    private PublicKey publicKey;
-
     private final RefreshTokenRepository refreshTokenRepository;
 
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
+
+    /**
+     * Đọc nội dung PEM key file (bỏ header/footer)
+     */
+    private String readKeyFromFile(String path, String beginMarker, String endMarker) throws IOException {
+        Resource resource;
+
+        if (path.startsWith("classpath:")) {
+            resource = new ClassPathResource(path.replace("classpath:", ""));
+        } else {
+            resource = new FileSystemResource(path);
+        }
+
+        try (InputStream inputStream = resource.getInputStream()) {
+            String key = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            return key
+                    .replace(beginMarker, "")
+                    .replace(endMarker, "")
+                    .replaceAll("\\s+", "");
+        }
+    }
+
+    /**
+     * Load private key từ file PEM
+     */
     private PrivateKey getPrivateKey() {
         if (privateKey == null) {
             try {
-                String privateKeyPEM = getPrivateKeyPEM();
+                String privateKeyPEM = readKeyFromFile(
+                        jwtProperties.getPrivateKey(),
+                        "-----BEGIN PRIVATE KEY-----",
+                        "-----END PRIVATE KEY-----"
+                );
 
-                // 4. Decode Base64
                 byte[] decoded = Base64.getDecoder().decode(privateKeyPEM);
-
-                // 5. Tạo PrivateKey object
                 PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
                 KeyFactory keyFactory = KeyFactory.getInstance("RSA");
                 privateKey = keyFactory.generatePrivate(keySpec);
-
             } catch (Exception e) {
                 throw new RuntimeException("Error loading private key", e);
             }
@@ -55,8 +77,27 @@ public class JwtProvider {
         return privateKey;
     }
 
-    private String getPrivateKeyPEM() throws IOException {
-        return getPublicKeyPEM(jwtProperties.getPrivateKey(), "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----");
+    /**
+     * Load public key từ file PEM
+     */
+    private PublicKey getPublicKey() {
+        if (publicKey == null) {
+            try {
+                String publicKeyPEM = readKeyFromFile(
+                        jwtProperties.getPublicKey(),
+                        "-----BEGIN PUBLIC KEY-----",
+                        "-----END PUBLIC KEY-----"
+                );
+
+                byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
+                X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
+                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                publicKey = keyFactory.generatePublic(keySpec);
+            } catch (Exception e) {
+                throw new RuntimeException("Error loading public key", e);
+            }
+        }
+        return publicKey;
     }
 
     /**
@@ -103,57 +144,8 @@ public class JwtProvider {
         return refreshToken;
     }
 
-    private PublicKey getPublicKey() {
-        if (publicKey == null) {
-            try {
-                String publicKeyPEM = getPublicKeyPEM(jwtProperties.getPublicKey(), "-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----");
-
-                // 4. Decode Base64
-                byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
-
-                // 5. Tạo PublicKey object
-                X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
-                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                publicKey = keyFactory.generatePublic(keySpec);
-
-            } catch (Exception e) {
-                throw new RuntimeException("Error loading public key", e);
-            }
-        }
-        return publicKey;
-    }
-
-    private String getPublicKeyPEM(String jwtProperties, String target, String target1) throws IOException {
-        Resource resource;
-
-        if (jwtProperties.startsWith("classpath:")) {
-            resource = new ClassPathResource(jwtProperties.replace("classpath:", ""));
-        } else {
-            resource = new FileSystemResource(jwtProperties);
-        }
-
-        // 2. Đọc file
-        InputStream inputStream = resource.getInputStream();
-        String publicKeyPEM = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
-        // 3. Loại bỏ header/footer
-        publicKeyPEM = publicKeyPEM
-                .replace(target, "")
-                .replace(target1, "")
-                .replaceAll("\\s", "");
-        return publicKeyPEM;
-    }
-
     /**
-     * Extract claim token
-     */
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    /**
-     * Extract all claim from token
+     * Parse claims từ token
      */
     public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
@@ -163,9 +155,11 @@ public class JwtProvider {
                 .getBody();
     }
 
-    /**
-     * Check expire time
-     */
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
     public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -174,9 +168,6 @@ public class JwtProvider {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    /**
-     * Check sign token
-     */
     public boolean isSignatureValid(String token) {
         try {
             Jwts.parserBuilder()
@@ -189,9 +180,6 @@ public class JwtProvider {
         }
     }
 
-    /**
-     * Extract username from token
-     */
     public String extractUserName(String token) {
         return extractAllClaims(token).getSubject();
     }
@@ -199,12 +187,9 @@ public class JwtProvider {
     public UUID extractAccountId(String token) {
         Object userId = extractAllClaims(token).get("accountId");
         if (userId == null) return null;
-        return (UUID) userId;
+        return UUID.fromString(userId.toString());
     }
 
-    /**
-     * Extract roles from token
-     */
     public List<String> extractUserRole(String token) {
         Claims claims = extractAllClaims(token);
         Object rolesObj = claims.get("roles");
@@ -217,5 +202,4 @@ public class JwtProvider {
 
         return Collections.emptyList();
     }
-
 }

@@ -30,6 +30,7 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
 
     /**
      * Register a new account using Google OAuth2 information.
+     *
      * @param request the account registration request containing Google token, username, password, and confirmPassword
      * @throws SystemException if Google token is invalid, email already exists, or password mismatch
      */

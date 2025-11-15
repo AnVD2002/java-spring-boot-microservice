@@ -3,7 +3,6 @@ package com.project.common_lib_service.exception;
 import com.project.common_lib_service.config.MessageResource;
 import com.project.common_lib_service.dto.ResponseData;
 import com.project.common_lib_service.utils.ResponseUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebExchange;
 
 import java.util.List;
 
@@ -19,87 +19,78 @@ import java.util.List;
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
     private final MessageResource messageResource;
 
     /**
-     * handle BusinessException
-     * @param ex
-     * @param request
-     * @return
+     * Handle BusinessException
      */
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<AbstractError> handleBusinessException(BusinessException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex, ServerWebExchange exchange) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(ex.getCode())
                 .message(ex.getMessage())
                 .errorCode(ex.getErrorCode())
                 .extras(ex.getExtras())
                 .httpStatus(ex.getHttpStatus())
-                .url(request.getRequestURI())
+                .url(exchange.getRequest().getURI().getPath())
                 .build();
+
         return ResponseEntity.status(ex.getHttpStatus()).body(errorResponse);
     }
 
-
     /**
-     * Handle ResponseStatusException thrown by controllers or services.
-     * @param ex
-     * @param request
-     * @return
+     * Handle ResponseStatusException
      */
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex,
-                                                                       HttpServletRequest request) {
-
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex, ServerWebExchange exchange) {
         HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+
         ErrorResponse error = ErrorResponse.builder()
-                .code(ex.getStatusCode().value())
+                .code(status.value())
                 .message(ex.getReason())
                 .httpStatus(status)
-                .url(request.getRequestURI())
+                .url(exchange.getRequest().getURI().getPath())
                 .build();
 
-        return ResponseEntity.status(ex.getStatusCode()).body(error);
+        return ResponseEntity.status(status).body(error);
     }
 
     /**
-     * handle generic Exception
-     * @param ex
-     * @param request
-     * @return
+     * Handle generic Exception
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, ServerWebExchange exchange) {
+        String path = exchange.getRequest().getURI().getPath();
+
         ErrorResponse error = ErrorResponse.builder()
                 .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message("Something went wrong. Please contact support.")
                 .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
                 .errorCode("ERROR-500")
-                .url(request.getRequestURI())
+                .url(path)
                 .build();
 
-        log.error("Unhandled exception at [{}]: {}", request.getRequestURI(), ex.getMessage(), ex);
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("Unhandled exception at [{}]: {}", path, ex.getMessage(), ex);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-
     /**
-     * handle MethodArgumentNotValidException
-     * @param ex
-     * @return
+     * Handle MethodArgumentNotValidException (validation)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ResponseData<List<FieldErrorResponse>>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ResponseData<List<FieldErrorResponse>>> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex) {
+
         List<FieldErrorResponse> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> {
                     String errorCode = fieldError.getDefaultMessage();
                     String rawMessage = messageResource.getMessage(errorCode);
 
-                    // Lấy min/max nếu có
                     Integer min = extractArgument(fieldError.getArguments(), 2);
                     Integer max = extractArgument(fieldError.getArguments(), 1);
 
-                    // Resolve message
                     String resolvedMessage = rawMessage
                             .replace("{min}", min != null ? min.toString() : "")
                             .replace("{max}", max != null ? max.toString() : "");

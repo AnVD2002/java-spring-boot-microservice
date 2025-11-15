@@ -4,6 +4,7 @@ package com.project.auth_service.entity;
 import com.project.common_lib_service.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.io.Serial;
 import java.util.UUID;
@@ -14,17 +15,15 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
 @Table(name = "accounts")
+@Entity
 public class Account extends BaseEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_seq")
-    @SequenceGenerator(name = "account_seq", sequenceName = "account_id_seq", allocationSize = 1)
-    @Column(name = "id")
+    @UuidGenerator
     private UUID id;
 
     @Column(name = "email", unique = true, nullable = false)

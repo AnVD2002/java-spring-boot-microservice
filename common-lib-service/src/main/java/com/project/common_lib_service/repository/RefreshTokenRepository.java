@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class RefreshTokenRepository {
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String PREFIX = "refresh:";

@@ -1,5 +1,3 @@
-#spring.application.name=auth-service
-
 spring:
   application:
     name: auth-service
@@ -7,15 +5,18 @@ spring:
     allow-bean-definition-overriding: true
     allow-circular-references: true
   datasource:
-#    url: jdbc:mysql://localhost:3306/project_1
-#    username: root
-#    password: 260415
-#    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://localhost:5432/auth-db
+    username: postgres
+    password: 260415
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   security:
     oauth2:
@@ -23,7 +24,7 @@ spring:
         registration:
           google:
             client-id:
-            client-secret: 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
+            client-secret:
             scope:
               - openid
               - profile
@@ -35,11 +36,27 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
+
   liquibase:
     change-log: classpath:config.liquibase/changelog/master.xml
+    enabled: false
 
+server:
+  port: 8081
 
 jwt:
   expiration: 3600000
   refresh-expiration: 2592000000
   private-key: classpath:keys/private.pem
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+logging:
+  level:
+    org.springframework.boot.autoconfigure.jdbc: DEBUG
+    org.springframework.orm.jpa: DEBUG

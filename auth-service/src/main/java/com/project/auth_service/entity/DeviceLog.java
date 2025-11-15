@@ -3,6 +3,7 @@ package com.project.auth_service.entity;
 import com.project.common_lib_service.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.io.Serial;
 import java.time.LocalDateTime;
@@ -21,9 +22,7 @@ public class DeviceLog extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "device_log_seq")
-    @SequenceGenerator(name = "device_log_seq", sequenceName = "device_log_id_seq", allocationSize = 1)
-    @Column(name = "id")
+    @UuidGenerator
     private UUID id;
 
     @Column(name = "device_id")

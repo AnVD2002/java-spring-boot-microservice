@@ -9,16 +9,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/login/default")
+@RestController
+@RequestMapping("/login/default")
 @RequiredArgsConstructor
 public class LoginDefaultController {
 
-    public final LoginDefaultService loginDefaultService;
+    private final LoginDefaultService loginDefaultService;
 
     @PostMapping
-    public ResponseEntity<ResponseData<LoginResponse>> loginDefault(LoginDefaultRequest loginDefaultRequest, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ResponseData<LoginResponse>> loginDefault(@RequestBody LoginDefaultRequest loginDefaultRequest, HttpServletRequest httpServletRequest) {
 
         String deviceId = httpServletRequest.getHeader("X-Device-ID");
         String accountId = httpServletRequest.getHeader("X-Account-ID");

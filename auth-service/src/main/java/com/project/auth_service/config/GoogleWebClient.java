@@ -1,0 +1,14 @@
+package com.project.auth_service.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Configuration
+public class GoogleWebClient {
+    @Bean("googleClient")
+    public WebClient webClient(WebClient.Builder builder) {
+        return builder.baseUrl("https://oauth2.googleapis.com")
+                .build();
+    }
+}

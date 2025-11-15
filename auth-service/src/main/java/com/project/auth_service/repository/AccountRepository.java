@@ -1,12 +1,12 @@
 package com.project.auth_service.repository;
 
 import com.project.auth_service.dto.response.AccountInfoDto;
+
 import com.project.auth_service.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +33,5 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
             "where a.status = 1 " +
             "and a.email = :email")
     AccountInfoDto getAccountInfoDtoByEmail(String email);
-
 
 }

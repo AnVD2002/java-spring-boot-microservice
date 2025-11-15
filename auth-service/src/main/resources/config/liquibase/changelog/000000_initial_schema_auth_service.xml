@@ -5,19 +5,10 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- ================== SEQUENCES ================== -->
-    <changeSet id="1-create-sequences" author="an">
-        <createSequence sequenceName="account_id_seq" startValue="1" incrementBy="1"/>
-        <createSequence sequenceName="account_role_id_seq" startValue="1" incrementBy="1"/>
-        <createSequence sequenceName="account_token_id_seq" startValue="1" incrementBy="1"/>
-        <createSequence sequenceName="blacklist_token_id_seq" startValue="1" incrementBy="1"/>
-        <createSequence sequenceName="role_id_seq" startValue="1" incrementBy="1"/>
-    </changeSet>
-
     <!-- ================== ACCOUNTS ================== -->
-    <changeSet id="2-create-accounts" author="an">
+    <changeSet id="1-create-accounts" author="anvd35">
         <createTable tableName="accounts">
-            <column name="id" type="BIGINT">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="email" type="VARCHAR(255)">
@@ -29,21 +20,23 @@
             <column name="password" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
             <!-- BaseEntity fields -->
             <column name="inserted_at" type="TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP"/>
             <column name="deleted_at" type="TIMESTAMP"/>
-            <column name="inserted_by" type="BIGINT"/>
-            <column name="updated_by" type="BIGINT"/>
-            <column name="delete_by" type="BIGINT"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="delete_by" type="UUID"/>
         </createTable>
     </changeSet>
 
     <!-- ================== ROLES ================== -->
-    <changeSet id="3-create-roles" author="an">
+    <changeSet id="2-create-roles" author="anvd35">
         <createTable tableName="roles">
-            <column name="id" type="BIGINT">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -54,22 +47,22 @@
             <column name="inserted_at" type="TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP"/>
             <column name="deleted_at" type="TIMESTAMP"/>
-            <column name="inserted_by" type="BIGINT"/>
-            <column name="updated_by" type="BIGINT"/>
-            <column name="delete_by" type="BIGINT"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="delete_by" type="UUID"/>
         </createTable>
     </changeSet>
 
     <!-- ================== ACCOUNT_ROLES ================== -->
-    <changeSet id="4-create-account-roles" author="an">
+    <changeSet id="3-create-account-roles" author="anvd35">
         <createTable tableName="account_roles">
-            <column name="id" type="BIGINT">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="account_id" type="BIGINT">
+            <column name="account_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="role_id" type="BIGINT">
+            <column name="role_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
 
@@ -77,9 +70,9 @@
             <column name="inserted_at" type="TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP"/>
             <column name="deleted_at" type="TIMESTAMP"/>
-            <column name="inserted_by" type="BIGINT"/>
-            <column name="updated_by" type="BIGINT"/>
-            <column name="delete_by" type="BIGINT"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="delete_by" type="UUID"/>
         </createTable>
 
         <!-- FK constraints -->
@@ -92,20 +85,20 @@
     </changeSet>
 
     <!-- ================== ACCOUNT_TOKENS ================== -->
-    <changeSet id="5-create-account-tokens" author="an">
+    <changeSet id="4-create-account-tokens" author="anvd35">
         <createTable tableName="account_tokens">
-            <column name="id" type="BIGINT">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="user_id" type="BIGINT">
+            <column name="user_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
             <column name="refresh_token" type="VARCHAR(512)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="issued_at" type="TIMESTAMP" />
-            <column name="expires_at" type="TIMESTAMP" />
-            <column name="is_revoked" type="BOOLEAN" />
+            <column name="issued_at" type="TIMESTAMP"/>
+            <column name="expires_at" type="TIMESTAMP"/>
+            <column name="is_revoked" type="BOOLEAN"/>
             <column name="provider" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
@@ -114,9 +107,9 @@
             <column name="inserted_at" type="TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP"/>
             <column name="deleted_at" type="TIMESTAMP"/>
-            <column name="inserted_by" type="BIGINT"/>
-            <column name="updated_by" type="BIGINT"/>
-            <column name="delete_by" type="BIGINT"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="delete_by" type="UUID"/>
         </createTable>
 
         <!-- FK to accounts -->
@@ -125,35 +118,29 @@
                                  constraintName="fk_account_tokens_user"/>
     </changeSet>
 
-    <!-- ================== BLACKLIST_TOKENS ================== -->
-    <changeSet id="6-create-blacklist-tokens" author="an">
-        <createTable tableName="blacklist_tokens">
-            <column name="id" type="BIGINT">
+    <!-- ================== DEVICE_LOG ================== -->
+    <changeSet id="5-create-device-log" author="anvd35">
+        <createTable tableName="device_log">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="access_token" type="VARCHAR(512)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="user_id" type="BIGINT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="reason" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-
-            <!-- BaseEntity fields -->
+            <column name="device_id" type="UUID"/>
+            <column name="user_id" type="UUID"/>
+            <column name="first_seen_at" type="TIMESTAMP"/>
+            <column name="last_seen_at" type="TIMESTAMP"/>
+            <column name="status" type="INT"/>
             <column name="inserted_at" type="TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP"/>
             <column name="deleted_at" type="TIMESTAMP"/>
-            <column name="inserted_by" type="BIGINT"/>
-            <column name="updated_by" type="BIGINT"/>
-            <column name="delete_by" type="BIGINT"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="delete_by" type="UUID"/>
         </createTable>
 
-        <!-- FK to accounts -->
-        <addForeignKeyConstraint baseTableName="blacklist_tokens" baseColumnNames="user_id"
+        <!-- Optional FK -->
+        <addForeignKeyConstraint baseTableName="device_log" baseColumnNames="user_id"
                                  referencedTableName="accounts" referencedColumnNames="id"
-                                 constraintName="fk_blacklist_tokens_user"/>
+                                 constraintName="fk_device_log_user"/>
     </changeSet>
 
 </databaseChangeLog>

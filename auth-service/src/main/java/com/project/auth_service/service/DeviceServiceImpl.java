@@ -21,6 +21,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     /**
      * Get and save deviceId
+     *
      * @param deviceId
      * @param accountId
      * @return
@@ -42,7 +43,7 @@ public class DeviceServiceImpl implements DeviceService {
 
             //If deviceId and accountId are provided, check if deviceId exists for the account
             if (StringUtils.hasText(deviceId) && StringUtils.hasText(accountId)) {
-                List<DeviceLog> deviceUsing = deviceLogRepository.findAccountUsingByAccountId( UUID.fromString(accountId));
+                List<DeviceLog> deviceUsing = deviceLogRepository.findAccountUsingByAccountId(UUID.fromString(accountId));
 
                 // Limit to 3 devices
                 if (deviceUsing.size() > 3) {
@@ -57,8 +58,7 @@ public class DeviceServiceImpl implements DeviceService {
                             .lastSeenAt(LocalDateTime.now())
                             .firstSeenAt(LocalDateTime.now())
                             .build();
-                }
-                else {
+                } else {
                     for (DeviceLog deviceLog : devicesByAccountId) {
                         if (deviceId.equals(deviceLog.getId().toString())) {
                             deviceLog.setLastSeenAt(LocalDateTime.now());
@@ -69,8 +69,7 @@ public class DeviceServiceImpl implements DeviceService {
                 }
 
             }
-        }
-        else {
+        } else {
             newDeviceLog = DeviceLog.builder()
                     .userId(UUID.fromString(accountId))
                     .deviceId(newDeviceId)

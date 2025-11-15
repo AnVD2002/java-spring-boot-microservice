@@ -11,6 +11,7 @@ import com.project.common_lib_service.exception.AuthenticationException;
 import com.project.common_lib_service.exception.SystemError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.ObjectUtils;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
     @Override
     public LoginResponse loginOauth2(String accessToken) {
 
-        try{
+        try {
             GoogleUserInfo googleUserInfo = googleOAuth2Service.getGoogleUserInfo(accessToken);
 
             String email = googleUserInfo.getEmail();
@@ -60,12 +61,10 @@ public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
                     .email(email)
                     .roles(roles)
                     .build();
-        }
-        catch (Exception e){
-            if (e instanceof AuthenticationException){
+        } catch (Exception e) {
+            if (e instanceof AuthenticationException) {
                 throw e;
-            }
-            else {
+            } else {
                 throw new AuthenticationException(SystemError.ERROR_500, "Failed to login with Google account");
             }
         }

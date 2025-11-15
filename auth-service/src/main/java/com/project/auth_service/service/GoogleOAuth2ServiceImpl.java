@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.adapter.DefaultServerWebExchange;
+import reactor.core.publisher.Mono;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -25,8 +30,7 @@ import java.util.Random;
 @Transactional
 @RequiredArgsConstructor
 public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
-
-    private final WebClient webClient;
+    private final WebClient googleClient;
 
     private final OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
@@ -63,7 +67,7 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
                     body.add("redirect_uri", redirectUri);
                     body.add("grant_type", "authorization_code");
 
-                    Map<String, Object> tokenResponse = webClient.post()
+                    Map<String, Object> tokenResponse = googleClient.post()
                             .uri("/token")
                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                             .bodyValue(body)
@@ -111,16 +115,18 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
 
     @Override
     public String generateUrl(HttpServletRequest request, String registrationId) {
-        OAuth2AuthorizationRequest authorizationRequest = authorizationRequestResolver.resolve(request, registrationId);
+        OAuth2AuthorizationRequest authorizationRequest =
+                authorizationRequestResolver.resolve(request, registrationId);
 
         if (authorizationRequest == null) {
-            throw new SystemException(SystemError.ERROR_500);
+            throw new SystemException(SystemError.ERROR_500, "Cannot resolve authorization request for " + registrationId);
         }
+
         return authorizationRequest.getAuthorizationRequestUri();
     }
 
     public GoogleUserInfo getGoogleUserInfo(String accessToken) {
-        return webClient.get()
+        return googleClient.get()
                 .uri(userInfoUri)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()

@@ -48,6 +48,7 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
 
     /**
      * Default login method
+     *
      * @param loginDefaultRequest
      * @param deviceIdRequest
      * @param accountIdRequest
@@ -124,6 +125,7 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
 
     /**
      * Increase fail count in Redis
+     *
      * @param failKey
      */
     private void increaseFailCount(String failKey) {
@@ -136,10 +138,11 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
 
     /**
      * Get list of roles for a username
+     *
      * @param username
      * @return
      */
-    public List<String> getListRoleByUsername( String username ) {
+    public List<String> getListRoleByUsername(String username) {
         List<String> roles = roleRepository.getRoleNameByUsername(username);
         if (CollectionUtils.isEmpty(roles)) {
             throw new SystemException(AuthenticationError.ERROR_003); // No roles
@@ -149,17 +152,17 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
 
     /**
      * Get list of roles for a username
+     *
      * @param email
      * @return
      */
-    public List<String> getListRoleByEmail( String email ) {
+    public List<String> getListRoleByEmail(String email) {
         List<String> roles = roleRepository.getRoleNameByEmail(email);
         if (CollectionUtils.isEmpty(roles)) {
             throw new SystemException(AuthenticationError.ERROR_003); // No roles
         }
         return roles;
     }
-
 
 
 }

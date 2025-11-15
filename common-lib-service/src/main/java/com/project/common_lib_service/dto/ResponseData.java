@@ -1,6 +1,6 @@
 package com.project.common_lib_service.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.project.common_lib_service.exception.FieldErrorResponse;
 import lombok.Data;
 import lombok.Setter;
@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseData<T> implements Serializable {
     private int code;
     private String errorCode;
