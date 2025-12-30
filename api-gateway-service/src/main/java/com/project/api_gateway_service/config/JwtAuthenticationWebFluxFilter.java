@@ -2,11 +2,11 @@ package com.project.api_gateway_service.config;
 
 import com.project.common_lib_service.dto.CustomUserPrincipal;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationWebFluxFilter implements WebFilter {
+
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
     @Override
     public @NonNull Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         var request = exchange.getRequest();
@@ -25,6 +28,12 @@ public class JwtAuthenticationWebFluxFilter implements WebFilter {
         String accountIdHeader = headers.getFirst("X-AccountId");
         String username = headers.getFirst("X-Username");
         String roleHeader = headers.getFirst("X-Role");
+
+        String path = exchange.getRequest().getURI().getPath();
+
+        if (path.startsWith("/api/v1/auth/")) {
+            return chain.filter(exchange);
+        }
 
         if (accountIdHeader == null || username == null) {
             return chain.filter(exchange);

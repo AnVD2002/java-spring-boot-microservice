@@ -1,13 +1,11 @@
 spring:
   application:
     name: auth-service
-  main:
-    allow-bean-definition-overriding: true
-    allow-circular-references: true
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/auth-db
+    url: jdbc:postgresql://localhost:5432/auth_db
     username: postgres
-    password: 260415
+    password: Haibabon@234
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,25 +16,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id:
-            client-secret:
-            scope:
-              - openid
-              - profile
-              - email
-            redirect-uri: "http://localhost:5173/auth/google/callback"
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            user-name-attribute: sub
-
   liquibase:
     change-log: classpath:config.liquibase/changelog/master.xml
     enabled: false
@@ -44,11 +23,21 @@ spring:
 server:
   port: 8081
 
+# ===== OAUTH2 GOOGLE =====
+google:
+  oauth:
+    client-id:
+    client-secret:
+    redirect-uri: http://localhost:5173/auth/google/callback
+    user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+
+# ===== JWT =====
 jwt:
   expiration: 3600000
   refresh-expiration: 2592000000
   private-key: classpath:keys/private.pem
 
+# ===== EUREKA =====
 eureka:
   client:
     service-url:
@@ -56,7 +45,18 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
 
+# ===== LOGGING =====
 logging:
   level:
-    org.springframework.boot.autoconfigure.jdbc: DEBUG
+    org.springframework.security: DEBUG
     org.springframework.orm.jpa: DEBUG
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
+
+# ===== AUTH TOKEN (REDIS) =====
+auth:
+  token:
+    refresh:
+      redis-prefix: "auth:refresh:${spring.application.name}:"
+      ttl-days: 7
+
+

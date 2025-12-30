@@ -1,21 +1,26 @@
 package com.project.auth_service.service;
 
+import com.project.auth_service.config.AuthTokenProperties;
+import com.project.auth_service.dto.request.LoginGoogleRequest;
 import com.project.auth_service.dto.response.AccountInfoDto;
 import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.dto.response.LoginResponse;
 import com.project.auth_service.repository.AccountRepository;
 import com.project.common_lib_service.config.JwtProvider;
-
 import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.AuthenticationException;
 import com.project.common_lib_service.exception.SystemError;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
+@Service
 public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
 
     private final GoogleOAuth2Service googleOAuth2Service;
@@ -26,11 +31,15 @@ public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
 
     private final AccountRepository accountRepository;
 
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private final AuthTokenProperties authTokenProperties;
+
     @Override
-    public LoginResponse loginOauth2(String accessToken) {
+    public LoginResponse loginOauth2(LoginGoogleRequest loginGoogleRequest) {
 
         try {
-            GoogleUserInfo googleUserInfo = googleOAuth2Service.getGoogleUserInfo(accessToken);
+            GoogleUserInfo googleUserInfo = googleOAuth2Service.getGoogleUserInfo(loginGoogleRequest.getToken());
 
             String email = googleUserInfo.getEmail();
 
@@ -52,11 +61,20 @@ public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
 
             String newAccessToken = jwtProvider.generateAccessToken(username, accountId, roles);
 
-            String newRefreshToken = jwtProvider.generateRefreshToken(username, accountId, roles);
+            String refreshToken = UUID.randomUUID().toString();
+
+            String redisKey =
+                    authTokenProperties.getRefresh().getRedisPrefix() + refreshToken;
+
+            redisTemplate.opsForValue().set(
+                    redisKey,
+                    accountId.toString(),
+                    authTokenProperties.getRefresh().getTtlDays(),
+                    TimeUnit.DAYS);
 
             return LoginResponse.builder()
                     .accessToken(newAccessToken)
-                    .refreshToken(newRefreshToken)
+                    .refreshToken(refreshToken)
                     .username(username)
                     .email(email)
                     .roles(roles)

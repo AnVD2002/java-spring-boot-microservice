@@ -4,27 +4,21 @@ import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.utils.LoginType;
 import com.project.common_lib_service.exception.SystemError;
 import com.project.common_lib_service.exception.SystemException;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.adapter.DefaultServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 @Transactional
@@ -32,25 +26,17 @@ import java.util.Random;
 public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
     private final WebClient googleClient;
 
-    private final OAuth2AuthorizationRequestResolver authorizationRequestResolver;
-
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    @Value("${google.oauth.client-id}")
     private String clientId;
 
-    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    @Value("${google.oauth.client-secret}")
     private String clientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    @Value("${google.oauth.redirect-uri}")
     private String redirectUri;
 
-    @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+    @Value("${google.oauth.user-info-uri}")
     private String userInfoUri;
-
-    private static final String CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-    private static final Random RANDOM = new Random();
-
-    private static final String TOPIC = "email-code-topic";
 
     @Override
     public String authenticateAndFetchProfile(String loginType, String code) {
@@ -76,20 +62,12 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
                             })
                             .block();
 
-                    String email = "";
-
-                    if (tokenResponse != null && tokenResponse.containsKey("email")) {
-                        email = (String) tokenResponse.get("email");
+                    if (!CollectionUtils.isEmpty(tokenResponse)) {
+                        return Optional.of(tokenResponse)
+                                .map(res -> res.get("access_token"))
+                                .map(Object::toString)
+                                .orElseThrow(() -> new SystemException(SystemError.ERROR_029));
                     }
-
-                    if (email == null || email.isBlank()) {
-                        throw new SystemException(SystemError.ERROR_030);
-                    }
-
-                    return Optional.of(tokenResponse)
-                            .map(res -> res.get("access_token"))
-                            .map(Object::toString)
-                            .orElseThrow(() -> new SystemException(SystemError.ERROR_029));
 
                 case FACEBOOK:
                     // TODO: implement facebook login
@@ -114,15 +92,17 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
 //    }
 
     @Override
-    public String generateUrl(HttpServletRequest request, String registrationId) {
-        OAuth2AuthorizationRequest authorizationRequest =
-                authorizationRequestResolver.resolve(request, registrationId);
+    public String generateUrl() {
+        String url = UriComponentsBuilder.fromUriString("https://accounts.google.com/o/oauth2/v2/auth")
+                .queryParam("client_id", clientId)
+                .queryParam("redirect_uri", redirectUri)
+                .queryParam("response_type", "code")
+                .queryParam("scope", "openid email profile")
+                .queryParam("access_type", "offline")
+                .build()
+                .toUriString();
 
-        if (authorizationRequest == null) {
-            throw new SystemException(SystemError.ERROR_500, "Cannot resolve authorization request for " + registrationId);
-        }
-
-        return authorizationRequest.getAuthorizationRequestUri();
+        return Map.of("url", url).toString();
     }
 
     public GoogleUserInfo getGoogleUserInfo(String accessToken) {
