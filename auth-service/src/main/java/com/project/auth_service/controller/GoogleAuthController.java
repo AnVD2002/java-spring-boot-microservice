@@ -1,8 +1,11 @@
 package com.project.auth_service.controller;
 
+import com.project.auth_service.dto.request.AccountRegistrationRequest;
 import com.project.auth_service.dto.request.LoginGoogleRequest;
 import com.project.auth_service.service.GoogleOAuth2Service;
 import com.project.auth_service.service.LoginOAuth2Service;
+import com.project.auth_service.service.RegisterAccountService;
+import com.project.common_lib_service.utils.ResponseUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +20,8 @@ public class GoogleAuthController {
     private final GoogleOAuth2Service googleOAuth2Service;
 
     private final LoginOAuth2Service loginOAuth2Service;
+
+    private final RegisterAccountService registerAccountService;
 
     @GetMapping("/google/url")
     public ResponseEntity<String> getGoogleAuthUrl() {
@@ -41,5 +46,11 @@ public class GoogleAuthController {
     @PostMapping("/google/login")
     public ResponseEntity<?> loginWithGoogle(@RequestBody LoginGoogleRequest request) {
         return ResponseEntity.ok(loginOAuth2Service.loginOauth2(request));
+    }
+
+    @PostMapping("/google/register")
+    public ResponseEntity<?> registerWithGoogle(@RequestBody AccountRegistrationRequest request) {
+        registerAccountService.registerAccount(request);
+        return ResponseUtils.success();
     }
 }

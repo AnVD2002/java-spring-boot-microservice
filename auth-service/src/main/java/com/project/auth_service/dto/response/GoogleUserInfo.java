@@ -10,10 +10,9 @@ import lombok.*;
 public class GoogleUserInfo {
     private String sub;       // Google user id
     private String name;      // Full name
-    private String given_name;
-    private String family_name;
+    private String givenName;
+    private String familyName;
     private String picture;   // avatar URL
     private String email;
-    private Boolean email_verified;
-    private String locale;
+    private Boolean emailVerified;
 }

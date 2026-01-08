@@ -1,5 +1,9 @@
 package com.project.auth_service.service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.utils.LoginType;
 import com.project.common_lib_service.exception.SystemError;
@@ -17,6 +21,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -64,7 +69,7 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
 
                     if (!CollectionUtils.isEmpty(tokenResponse)) {
                         return Optional.of(tokenResponse)
-                                .map(res -> res.get("access_token"))
+                                .map(res -> res.get("id_token"))
                                 .map(Object::toString)
                                 .orElseThrow(() -> new SystemException(SystemError.ERROR_029));
                     }
@@ -114,5 +119,39 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
                 .block();
     }
 
+    public GoogleUserInfo verifyAndDecode(String idTokenString) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(),
+                    GsonFactory.getDefaultInstance()
+            )
+                    .setAudience(Collections.singletonList(clientId))
+                    .build();
 
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+
+            return getGoogleUserInfo(idToken);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to verify Google ID Token", e);
+        }
+    }
+
+    private static GoogleUserInfo getGoogleUserInfo(GoogleIdToken idToken) {
+        if (idToken == null) {
+            throw new RuntimeException("Invalid Google ID Token");
+        }
+
+        GoogleIdToken.Payload payload = idToken.getPayload();
+
+        GoogleUserInfo dto = new GoogleUserInfo();
+        dto.setSub(payload.getSubject());
+        dto.setEmail(payload.getEmail());
+        dto.setEmailVerified(payload.getEmailVerified());
+        dto.setName((String) payload.get("name"));
+        dto.setGivenName((String) payload.get("given_name"));
+        dto.setFamilyName((String) payload.get("family_name"));
+        dto.setPicture((String) payload.get("picture"));
+        return dto;
+    }
 }

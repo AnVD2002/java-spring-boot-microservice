@@ -12,7 +12,7 @@ import lombok.*;
 public class AccountRegistrationRequest {
 
     @NotBlank
-    private String token;
+    private String tokenId;
 
     @NotBlank(message = "Username must not be blank")
     @Size(min = 6, max = 20, message = "Username must be between 6 and 20 characters")

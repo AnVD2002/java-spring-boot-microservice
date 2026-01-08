@@ -8,6 +8,7 @@ import com.project.auth_service.repository.AccountRepository;
 import com.project.common_lib_service.exception.SystemError;
 import com.project.common_lib_service.exception.SystemException;
 import com.project.common_lib_service.service.KafkaProducerService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,10 +35,11 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
      * @param request the account registration request containing Google token, username, password, and confirmPassword
      * @throws SystemException if Google token is invalid, email already exists, or password mismatch
      */
-    public void RegisterAccount(AccountRegistrationRequest request) {
+    @Transactional
+    public void registerAccount(AccountRegistrationRequest request) {
 
         // 1. Fetch Google user info using the token
-        GoogleUserInfo googleUserInfo = googleOAuth2Service.getGoogleUserInfo(request.getToken());
+        GoogleUserInfo googleUserInfo = googleOAuth2Service.verifyAndDecode(request.getTokenId());
 
         // If no user info is returned => throw exception
         if (ObjectUtils.isEmpty(googleUserInfo)) {
@@ -74,7 +76,9 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
                 .username(account.getUsername())
                 .build();
 
-        kafkaProducerService.sendMessage("account-created-topic", accountCreatedEvent);
+        kafkaProducerService.sendMessage("account-created-topic",
+                account.getId().toString(),
+                accountCreatedEvent);
     }
 
 }

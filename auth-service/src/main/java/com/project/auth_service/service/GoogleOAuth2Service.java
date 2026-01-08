@@ -8,4 +8,6 @@ public interface GoogleOAuth2Service {
     String generateUrl();
 
     GoogleUserInfo getGoogleUserInfo(String accessToken);
+
+    GoogleUserInfo verifyAndDecode(String idTokenString);
 }
