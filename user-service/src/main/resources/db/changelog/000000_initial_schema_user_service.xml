@@ -6,15 +6,19 @@
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <!-- ================== ACCOUNTS ================== -->
-    <changeSet id="1-create-accounts" author="anvd35">
+    <changeSet id="1-create-users" author="anvd35">
 
-        <createTable tableName="accounts">
+        <createTable tableName="users">
 
             <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
 
-            <column name="user_id" type="VARCHAR(255)">
+            <column name="account_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="email" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
 

@@ -1,10 +1,11 @@
-package com.project.auth_service.service;
+package com.project.auth_service.service.provider.impl;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.project.auth_service.dto.response.GoogleUserInfo;
+import com.project.auth_service.service.provider.GoogleOAuth2Service;
 import com.project.auth_service.utils.LoginType;
 import com.project.common_lib_service.exception.SystemError;
 import com.project.common_lib_service.exception.SystemException;

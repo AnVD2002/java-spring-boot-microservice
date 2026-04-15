@@ -34,4 +34,7 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
             "and a.email = :email")
     AccountInfoDto getAccountInfoDtoByEmail(String email);
 
+
+    void deleteAccountById(UUID id);
+
 }

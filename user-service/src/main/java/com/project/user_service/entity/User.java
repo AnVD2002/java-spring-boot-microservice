@@ -26,7 +26,10 @@ public class User extends BaseEntity {
     @UuidGenerator
     private UUID id;
 
-    @Column(name = "user_id", unique = true, nullable = false)
+    @Column(name = "account_id", unique = true, nullable = false)
+    private UUID accountId;
+
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @Column(name = "username", unique = true, nullable = false)

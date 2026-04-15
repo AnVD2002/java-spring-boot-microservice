@@ -1,7 +1,8 @@
-package com.project.auth_service.service;
+package com.project.auth_service.service.device.impl;
 
 import com.project.auth_service.entity.DeviceLog;
 import com.project.auth_service.repository.DeviceLogRepository;
+import com.project.auth_service.service.device.DeviceService;
 import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.SystemException;
 import lombok.RequiredArgsConstructor;

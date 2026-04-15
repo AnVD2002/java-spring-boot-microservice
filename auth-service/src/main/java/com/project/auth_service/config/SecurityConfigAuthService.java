@@ -14,7 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfigAuthService {
     @Bean
-    @Order(2)
     SecurityFilterChain authSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/v1/auth/**")

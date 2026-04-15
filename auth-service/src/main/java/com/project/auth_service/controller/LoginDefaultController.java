@@ -2,7 +2,7 @@ package com.project.auth_service.controller;
 
 import com.project.auth_service.dto.request.LoginDefaultRequest;
 import com.project.auth_service.dto.response.LoginResponse;
-import com.project.auth_service.service.LoginDefaultService;
+import com.project.auth_service.service.auth.LoginDefaultService;
 import com.project.common_lib_service.dto.ResponseData;
 import com.project.common_lib_service.utils.ResponseUtils;
 import jakarta.servlet.http.HttpServletRequest;

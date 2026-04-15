@@ -28,9 +28,8 @@ google:
   oauth:
     client-id:
     client-secret:
-
-    redirect-uri: http://localhost:5173/auth/google/callback
-    user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+    redirect-uri:
+    user-info-uri:
 
 # ===== JWT =====
 jwt:
@@ -51,6 +50,11 @@ eureka:
     prefer-ip-address: true
     ip-address: 127.0.0.1
     instance-id: ${spring.application.name}:${server.port}
+
+kafka:
+  command:
+    user:
+      create: create-user-command-topic
 
 # ===== LOGGING =====
 logging:

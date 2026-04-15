@@ -1,4 +1,4 @@
-package com.project.common_lib_service.config;
+package com.project.common_lib_service.jwt;
 
 
 import lombok.Getter;

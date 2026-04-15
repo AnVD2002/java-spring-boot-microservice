@@ -1,12 +1,14 @@
-package com.project.auth_service.service;
+package com.project.auth_service.service.auth.impl;
 
 import com.project.auth_service.dto.request.LoginDefaultRequest;
 import com.project.auth_service.dto.response.AccountInfoDto;
 import com.project.auth_service.dto.response.LoginResponse;
 import com.project.auth_service.repository.AccountRepository;
 import com.project.auth_service.repository.RoleRepository;
-import com.project.common_lib_service.config.JwtProperties;
-import com.project.common_lib_service.config.JwtProvider;
+import com.project.auth_service.service.device.DeviceService;
+import com.project.auth_service.service.auth.LoginDefaultService;
+import com.project.common_lib_service.jwt.JwtProperties;
+import com.project.common_lib_service.jwt.JwtProvider;
 import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.SystemException;
 import jakarta.transaction.Transactional;

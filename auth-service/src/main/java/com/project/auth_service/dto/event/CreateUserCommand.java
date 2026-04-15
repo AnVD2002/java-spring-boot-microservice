@@ -10,7 +10,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AccountCreatedEvent {
+public class CreateUserCommand {
     private UUID accountId;
     private String email;
     private String username;

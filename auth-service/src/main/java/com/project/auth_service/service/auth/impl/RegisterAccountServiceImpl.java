@@ -1,16 +1,16 @@
-package com.project.auth_service.service;
+package com.project.auth_service.service.auth.impl;
 
 import com.project.auth_service.dto.request.AccountRegistrationRequest;
 import com.project.auth_service.dto.response.GoogleUserInfo;
-import com.project.auth_service.dto.event.AccountCreatedEvent;
 import com.project.auth_service.entity.Account;
 import com.project.auth_service.repository.AccountRepository;
+import com.project.auth_service.service.provider.GoogleOAuth2Service;
+import com.project.auth_service.service.auth.RegisterAccountService;
 import com.project.common_lib_service.exception.SystemError;
 import com.project.common_lib_service.exception.SystemException;
 import com.project.common_lib_service.service.KafkaProducerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -36,7 +36,7 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
      * @throws SystemException if Google token is invalid, email already exists, or password mismatch
      */
     @Transactional
-    public void registerAccount(AccountRegistrationRequest request) {
+    public Account registerAccount(AccountRegistrationRequest request) {
 
         // 1. Fetch Google user info using the token
         GoogleUserInfo googleUserInfo = googleOAuth2Service.verifyAndDecode(request.getTokenId());
@@ -69,16 +69,8 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
 
         accountRepository.save(account);
 
-        // 5. Publish account created event to Kafka so other services can handle follow-up tasks
-        AccountCreatedEvent accountCreatedEvent = AccountCreatedEvent.builder()
-                .accountId(account.getId())
-                .email(email)
-                .username(account.getUsername())
-                .build();
+        return account;
 
-        kafkaProducerService.sendMessage("account-created-topic",
-                account.getId().toString(),
-                accountCreatedEvent);
     }
 
 }

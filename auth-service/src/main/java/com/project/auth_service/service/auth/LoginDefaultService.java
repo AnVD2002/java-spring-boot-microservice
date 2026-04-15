@@ -1,4 +1,4 @@
-package com.project.auth_service.service;
+package com.project.auth_service.service.auth;
 
 import com.project.auth_service.dto.request.LoginDefaultRequest;
 import com.project.auth_service.dto.response.LoginResponse;

@@ -1,4 +1,4 @@
-package com.project.auth_service.service;
+package com.project.auth_service.service.auth.impl;
 
 import com.project.auth_service.config.AuthTokenProperties;
 import com.project.auth_service.dto.request.LoginGoogleRequest;
@@ -6,7 +6,10 @@ import com.project.auth_service.dto.response.AccountInfoDto;
 import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.dto.response.LoginResponse;
 import com.project.auth_service.repository.AccountRepository;
-import com.project.common_lib_service.config.JwtProvider;
+import com.project.auth_service.service.provider.GoogleOAuth2Service;
+import com.project.auth_service.service.auth.LoginDefaultService;
+import com.project.auth_service.service.auth.LoginOAuth2Service;
+import com.project.common_lib_service.jwt.JwtProvider;
 import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.AuthenticationException;
 import com.project.common_lib_service.exception.SystemError;

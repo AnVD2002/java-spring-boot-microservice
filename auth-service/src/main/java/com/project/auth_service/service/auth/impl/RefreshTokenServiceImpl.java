@@ -1,7 +1,8 @@
-package com.project.auth_service.service;
+package com.project.auth_service.service.auth.impl;
 
 
-import com.project.common_lib_service.config.JwtProvider;
+import com.project.auth_service.service.auth.RefreshTokenService;
+import com.project.common_lib_service.jwt.JwtProvider;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

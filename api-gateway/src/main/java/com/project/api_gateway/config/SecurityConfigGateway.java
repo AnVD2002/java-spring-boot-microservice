@@ -29,7 +29,9 @@ public class SecurityConfigGateway {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(customAuthenticationEntryPoint())
+                )
                 .authorizeExchange(exchanges -> exchanges
                         .matchers(ServerWebExchangeMatchers.pathMatchers("/api/v1/auth/**"))
                         .permitAll()

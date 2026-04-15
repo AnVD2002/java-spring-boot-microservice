@@ -1,4 +1,4 @@
-package com.project.common_lib_service.config;
+package com.project.common_lib_service.jwt;
 
 import com.project.common_lib_service.dto.RefreshTokenInfo;
 import com.project.common_lib_service.repository.RefreshTokenRepository;

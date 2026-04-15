@@ -1,4 +1,4 @@
-package com.project.auth_service.service;
+package com.project.auth_service.service.provider;
 
 import com.project.auth_service.dto.response.GoogleUserInfo;
 
