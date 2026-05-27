@@ -2,10 +2,15 @@ spring:
   application:
     name: auth-service
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   datasource:
     url: jdbc:postgresql://localhost:5432/auth_db
     username: postgres
-    password: Haibabon@234
+    password: ${DB_PASSWORD:Haibabon@234}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,6 +24,9 @@ spring:
   liquibase:
     change-log: classpath:config.liquibase/changelog/master.xml
     enabled: false
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
 server:
   port: 8081
@@ -36,6 +44,7 @@ jwt:
   expiration: 3600000
   refresh-expiration: 2592000000
   private-key: classpath:keys/private.pem
+  public-key: classpath:keys/public.pem
 
 # ===== EUREKA =====
 eureka:
@@ -46,15 +55,16 @@ eureka:
     fetch-registry: true
 
   instance:
-    hostname: 127.0.0.1
     prefer-ip-address: true
-    ip-address: 127.0.0.1
     instance-id: ${spring.application.name}:${server.port}
 
 kafka:
   command:
     user:
       create: create-user-command-topic
+  notification:
+    send-otp-email: send-otp-email-topic
+    send-confirmation-registration-email: send-confirmation-registration-email-topic
 
 # ===== LOGGING =====
 logging:

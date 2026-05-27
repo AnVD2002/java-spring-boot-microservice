@@ -3,14 +3,14 @@ package com.project.auth_service.service.auth.impl;
 import com.project.auth_service.dto.request.LoginDefaultRequest;
 import com.project.auth_service.dto.response.AccountInfoDto;
 import com.project.auth_service.dto.response.LoginResponse;
-import com.project.auth_service.repository.AccountRepository;
-import com.project.auth_service.repository.RoleRepository;
-import com.project.auth_service.service.device.DeviceService;
+import com.project.auth_service.service.AccountRoleService;
+import com.project.auth_service.service.AccountService;
 import com.project.auth_service.service.auth.LoginDefaultService;
-import com.project.common_lib_service.jwt.JwtProperties;
-import com.project.common_lib_service.jwt.JwtProvider;
+import com.project.auth_service.service.device.DeviceService;
 import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.SystemException;
+import com.project.common_lib_service.jwt.JwtProperties;
+import com.project.common_lib_service.jwt.JwtProvider;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -31,7 +31,7 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
 
     private final JwtProvider jwtProvider;
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -45,7 +45,7 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
 
     private static final String REFRESH_TOKEN_KEY = "REFRESH_TOKEN:"; // key prefix
 
-    private final RoleRepository roleRepository;
+    private final AccountRoleService accountRoleService;
 
 
     /**
@@ -65,18 +65,18 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
         String failKey = LOGIN_FAIL_KEY + username;
         String failCount = redisTemplate.opsForValue().get(failKey);
         if (failCount != null && Integer.parseInt(failCount) >= 5) {
-            throw new SystemException(AuthenticationError.ERROR_004); // Too many login attempts
+            throw new SystemException(AuthenticationError.AUTH_004); // Too many login attempts
         }
 
-        AccountInfoDto accountInfoDto = accountRepository.getAccountInfoDtoByUsername(username);
+        AccountInfoDto accountInfoDto = accountService.getAccountInfoDtoByUsername(username);
         if (ObjectUtils.isEmpty(accountInfoDto)) {
             increaseFailCount(failKey);
-            throw new SystemException(AuthenticationError.ERROR_002); // User not found
+            throw new SystemException(AuthenticationError.AUTH_002); // Account not found
         }
 
         if (!passwordEncoder.matches(rawPassword, accountInfoDto.getPassword())) {
             increaseFailCount(failKey);
-            throw new SystemException(AuthenticationError.ERROR_001); // Invalid password
+            throw new SystemException(AuthenticationError.AUTH_001); // Invalid password
         }
 
         // 2. Reset fail count on success
@@ -86,7 +86,7 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
         List<String> roles = getListRoleByUsername(username);
 
         if (CollectionUtils.isEmpty(roles)) {
-            throw new SystemException(AuthenticationError.ERROR_003); // No roles
+            throw new SystemException(AuthenticationError.AUTH_003); // No roles
         }
 
         // Generate access tokens
@@ -145,9 +145,9 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
      * @return
      */
     public List<String> getListRoleByUsername(String username) {
-        List<String> roles = roleRepository.getRoleNameByUsername(username);
+        List<String> roles = accountRoleService.getRoleNameByUsername(username);
         if (CollectionUtils.isEmpty(roles)) {
-            throw new SystemException(AuthenticationError.ERROR_003); // No roles
+            throw new SystemException(AuthenticationError.AUTH_003); // No roles
         }
         return roles;
     }
@@ -159,9 +159,9 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
      * @return
      */
     public List<String> getListRoleByEmail(String email) {
-        List<String> roles = roleRepository.getRoleNameByEmail(email);
+        List<String> roles = accountRoleService.getRoleNameByEmail(email);
         if (CollectionUtils.isEmpty(roles)) {
-            throw new SystemException(AuthenticationError.ERROR_003); // No roles
+            throw new SystemException(AuthenticationError.AUTH_003); // No roles
         }
         return roles;
     }

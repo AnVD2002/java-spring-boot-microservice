@@ -77,7 +77,7 @@
 		<!-- ✅ Common shared library -->
 		<dependency>
 			<groupId>com.project</groupId>
-			<artifactId>common-lib-service</artifactId>
+			<artifactId>common-lib</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 

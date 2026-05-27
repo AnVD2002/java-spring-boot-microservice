@@ -48,7 +48,7 @@ public class DeviceServiceImpl implements DeviceService {
 
                 // Limit to 3 devices
                 if (deviceUsing.size() > 3) {
-                    throw new SystemException(AuthenticationError.ERROR_002);
+                    throw new SystemException(AuthenticationError.AUTH_002);
                 }
 
                 // If deviceId does not exist, create new device log

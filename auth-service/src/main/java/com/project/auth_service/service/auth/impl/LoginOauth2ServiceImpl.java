@@ -6,6 +6,7 @@ import com.project.auth_service.dto.response.AccountInfoDto;
 import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.dto.response.LoginResponse;
 import com.project.auth_service.repository.AccountRepository;
+import com.project.auth_service.service.AccountService;
 import com.project.auth_service.service.provider.GoogleOAuth2Service;
 import com.project.auth_service.service.auth.LoginDefaultService;
 import com.project.auth_service.service.auth.LoginOAuth2Service;
@@ -32,7 +33,7 @@ public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
 
     private final JwtProvider jwtProvider;
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -47,13 +48,13 @@ public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
             String email = googleUserInfo.getEmail();
 
             if (ObjectUtils.isEmpty(email)) {
-                throw new AuthenticationException(AuthenticationError.ERROR_001, "Email not found in Google account");
+                throw new AuthenticationException(AuthenticationError.AUTH_001, "Email not found in Google account");
             }
 
-            AccountInfoDto accountInfoDto = accountRepository.getAccountInfoDtoByEmail(email);
+            AccountInfoDto accountInfoDto = accountService.getAccountInfoDtoByEmail(email);
 
             if (ObjectUtils.isEmpty(accountInfoDto)) {
-                throw new AuthenticationException(AuthenticationError.ERROR_002, "No account associated with this email");
+                throw new AuthenticationException(AuthenticationError.AUTH_002, "No account associated with this email");
             }
 
             String username = accountInfoDto.getUsername();

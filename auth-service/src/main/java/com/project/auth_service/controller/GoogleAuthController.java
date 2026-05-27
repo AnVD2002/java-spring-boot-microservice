@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/auth/google")
 @RequiredArgsConstructor
 public class GoogleAuthController {
     private final GoogleOAuth2Service googleOAuth2Service;
@@ -23,13 +23,13 @@ public class GoogleAuthController {
 
     private final RegisterAccountFacade  registerAccountFacade;
 
-    @GetMapping("/google/url")
+    @GetMapping("/url")
     public ResponseEntity<String> getGoogleAuthUrl() {
         String url = googleOAuth2Service.generateUrl();
         return ResponseEntity.ok(url);
     }
 
-    @GetMapping("/google/callback")
+    @GetMapping("/callback")
     public ResponseEntity<?> handleGoogleCallback(
             @RequestParam String code,
             @RequestParam(defaultValue = "google") String loginType) {
@@ -37,20 +37,21 @@ public class GoogleAuthController {
         return ResponseEntity.ok(Map.of("access_token", token));
     }
 
-    @GetMapping("/admin/test")
+    @GetMapping("/test")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> testEndpoint() {
         return ResponseEntity.ok("Google Auth Service is running!");
     }
 
-    @PostMapping("/google/login")
+    @PostMapping("/login")
     public ResponseEntity<?> loginWithGoogle(@RequestBody LoginGoogleRequest request) {
         return ResponseEntity.ok(loginOAuth2Service.loginOauth2(request));
     }
 
-    @PostMapping("/google/register")
+    @PostMapping("/register")
     public ResponseEntity<?> registerWithGoogle(@RequestBody AccountRegistrationRequest request) {
         registerAccountFacade.register(request);
         return ResponseUtils.success();
     }
+
 }

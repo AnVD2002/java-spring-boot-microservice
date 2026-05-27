@@ -11,10 +11,10 @@
       <list>
         <option value="$PROJECT_DIR$/auth-service/pom.xml" />
         <option value="$PROJECT_DIR$/user-service/pom.xml" />
-        <option value="$PROJECT_DIR$/common-lib-service/pom.xml" />
+        <option value="$PROJECT_DIR$/common-lib/pom.xml" />
         <option value="$PROJECT_DIR$/api-gateway-service/pom.xml" />
         <option value="$PROJECT_DIR$/notification-service/pom.xml" />
-        <option value="$PROJECT_DIR$/bom-service/pom.xml" />
+        <option value="$PROJECT_DIR$/bom/pom.xml" />
         <option value="$PROJECT_DIR$/eureka-server/pom.xml" />
         <option value="$PROJECT_DIR$/api-gateway/pom.xml" />
       </list>

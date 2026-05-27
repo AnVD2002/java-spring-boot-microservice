@@ -8,6 +8,11 @@ spring:
   main:
     web-application-type: reactive
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
@@ -17,27 +22,37 @@ spring:
       enabled: false   # Tắt Config Server
 
     gateway:
-      server:
-        webflux:
-          discovery:
-            locator:
-              enabled: false   # 🔥 QUAN TRỌNG: tắt auto route + auto strip
-              lower-case-service-id: true
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
 
-          routes:
-            # ===== AUTH SERVICE =====
-            - id: auth-service
-              uri: lb://auth-service
-              predicates:
-                - Path=/api/v1/auth/**
+      routes:
+        # ===== AUTH SERVICE =====
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
 
-            # ===== USER SERVICE =====
-            - id: user-service
-              uri: lb://user-service
-              predicates:
-                - Path=/api/v1/users/**
-              filters:
-                - StripPrefix=1
+        # ===== USER SERVICE =====
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
+
+        # ===== NOTIFICATION SERVICE =====
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/v1/notifications/**
+
+# ===== JWT (for token verification in gateway) =====
+jwt:
+  public-key: classpath:keys/public.pem
+
+# ===== INTERNAL SERVICE SECRET =====
+internal:
+  secret: ${INTERNAL_SECRET:change-me-in-prod}
 
 # ===== EUREKA =====
 eureka:
@@ -45,9 +60,7 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
   instance:
-    hostname: 127.0.0.1
     prefer-ip-address: true
-    ip-address: 127.0.0.1
     instance-id: ${spring.application.name}:${server.port}
 
 # ===== LOGGING (DEBUG SECURITY + GATEWAY) =====

@@ -94,7 +94,7 @@
 		</dependency>
         <dependency>
             <groupId>com.project</groupId>
-            <artifactId>common-lib-service</artifactId>
+            <artifactId>common-lib</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
@@ -104,7 +104,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>com.project</groupId>
-				<artifactId>bom-service</artifactId>
+				<artifactId>bom</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<type>pom</type>
 				<scope>import</scope>

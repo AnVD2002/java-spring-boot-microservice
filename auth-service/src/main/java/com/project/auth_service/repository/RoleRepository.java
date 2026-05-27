@@ -10,19 +10,4 @@ import java.util.UUID;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, UUID> {
-    @Query(value = "select r.name from Account a " +
-            "inner join AccountRole ar on ar.accountId = a.id " +
-            "inner join Role r on r.id =ar.roleId " +
-            "where a.username =:username " +
-            "and a.status = 1")
-    List<String> getRoleNameByUsername(String username);
-
-    @Query(value = "select r.name from Account a " +
-            "inner join AccountRole ar on ar.accountId = a.id " +
-            "inner join Role r on r.id =ar.roleId " +
-            "where a.username =:email " +
-            "and a.status = 1")
-    List<String> getRoleNameByEmail(String email);
-
-
 }

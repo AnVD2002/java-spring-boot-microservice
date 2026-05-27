@@ -1,10 +1,14 @@
 package com.project.api_gateway.config;
 
-import com.project.common_lib_service.jwt.JwtProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.common_lib_service.dto.CustomUserPrincipal;
+import com.project.common_lib_service.jwt.JwtProvider;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -16,7 +20,9 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.project.common_lib_service.utils.SecurityHeaders.*;
@@ -26,13 +32,15 @@ import static com.project.common_lib_service.utils.SecurityHeaders.*;
 public class JwtAuthenticationWebFluxFilter implements WebFilter {
 
     private final JwtProvider jwtProvider;
+    private final ObjectMapper objectMapper;
+
+    @Value("${internal.secret}")
+    private String internalSecret;
 
     @Override
     @NonNull
-    public Mono<Void> filter(@NonNull ServerWebExchange exchange,@NonNull WebFilterChain chain) {
-        String authHeader = exchange.getRequest()
-                .getHeaders()
-                .getFirst(HttpHeaders.AUTHORIZATION);
+    public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return chain.filter(exchange);
@@ -41,21 +49,18 @@ public class JwtAuthenticationWebFluxFilter implements WebFilter {
         String token = authHeader.substring(7);
 
         try {
-            // 1. Verify chữ ký + parse token
             if (!jwtProvider.isSignatureValid(token) || jwtProvider.isTokenExpired(token)) {
-                return chain.filter(exchange);
+                return unauthorized(exchange, "Token is invalid or expired");
             }
 
-            // 2. Extract thông tin user
             String username = jwtProvider.extractUserName(token);
             UUID accountId = jwtProvider.extractAccountId(token);
             List<String> roles = jwtProvider.extractUserRole(token);
 
             if (username == null || accountId == null) {
-                return chain.filter(exchange);
+                return unauthorized(exchange, "Invalid token: missing claims");
             }
 
-            // 3. Map role → GrantedAuthority
             List<SimpleGrantedAuthority> authorities = roles.stream()
                     .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
                     .toList();
@@ -67,31 +72,43 @@ public class JwtAuthenticationWebFluxFilter implements WebFilter {
                     .build();
 
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            principal,
-                            null,
-                            authorities
-                    );
+                    new UsernamePasswordAuthenticationToken(principal, null, authorities);
 
             SecurityContext context = new SecurityContextImpl(authentication);
 
-            // 4. Set vào ReactiveSecurityContext
             return chain.filter(
                     exchange.mutate()
                             .request(builder -> builder
                                     .header(USER_ID, accountId.toString())
                                     .header(USERNAME, username)
                                     .header(ROLES, String.join(",", roles))
+                                    .header(AUTH_TOKEN, token)
+                                    .header(INTERNAL_SECRET, internalSecret)
                             )
                             .build()
-            ).contextWrite(
-                    ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context))
-            );
+            ).contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)));
 
         } catch (Exception e) {
-            // Token lỗi → cho qua hoặc log nếu muốn
-            return chain.filter(exchange);
+            return unauthorized(exchange, "Invalid token");
+        }
+    }
+
+    private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {
+        var response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+        try {
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("code", 401);
+            body.put("message", message);
+            body.put("url", exchange.getRequest().getPath().value());
+
+            byte[] bytes = objectMapper.writeValueAsBytes(body);
+            var buffer = response.bufferFactory().wrap(bytes);
+            return response.writeWith(Mono.just(buffer));
+        } catch (Exception ex) {
+            return response.setComplete();
         }
     }
 }
-

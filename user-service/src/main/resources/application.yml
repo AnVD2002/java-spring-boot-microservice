@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/user_db
     username: postgres
-    password: Haibabon@234
+    password: ${DB_PASSWORD:Haibabon@234}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -32,10 +32,12 @@ eureka:
     fetch-registry: true
 
   instance:
-    hostname: 127.0.0.1
     prefer-ip-address: true
-    ip-address: 127.0.0.1
     instance-id: ${spring.application.name}:${server.port}
+
+# ===== INTERNAL SERVICE SECRET =====
+internal:
+  secret: ${INTERNAL_SECRET:change-me-in-prod}
 
 # ===== LOGGING =====
 logging:
