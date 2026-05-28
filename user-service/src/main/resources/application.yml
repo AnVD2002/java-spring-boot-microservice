@@ -20,8 +20,23 @@ spring:
     change-log: db/master.xml
     enabled: true
 
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: user-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
+
 server:
   port: 8082
+
+kafka:
+  topic:
+    create-user: create-user-command-topic
 
 # ===== EUREKA =====
 eureka:
@@ -30,7 +45,6 @@ eureka:
       defaultZone: http://localhost:8761/eureka
     register-with-eureka: true
     fetch-registry: true
-
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
@@ -45,4 +59,3 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.orm.jpa: DEBUG
     org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
-

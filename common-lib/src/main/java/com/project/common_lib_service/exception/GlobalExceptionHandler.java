@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -32,9 +33,16 @@ public class GlobalExceptionHandler {
 
         log.warn("BaseException [{}] at [{}]: {}", ex.getErrorCode(), request.getRequestURI(), ex.getMessage());
 
+        String resolvedMessage;
+        try {
+            resolvedMessage = messageResource.getMessage(ex.getErrorCode());
+        } catch (Exception e) {
+            resolvedMessage = ex.getMessage();
+        }
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(ex.getCode())
-                .message(ex.getMessage())
+                .message(resolvedMessage)
                 .errorCode(ex.getErrorCode())
                 .extras(ex.getExtras())
                 .httpStatus(ex.getHttpStatus())
@@ -76,7 +84,13 @@ public class GlobalExceptionHandler {
                 .stream()
                 .map(fieldError -> {
                     String errorCode = fieldError.getDefaultMessage();
-                    String rawMessage = messageResource.getMessage(errorCode);
+
+                    String rawMessage;
+                    try {
+                        rawMessage = messageResource.getMessage(errorCode);
+                    } catch (Exception e) {
+                        rawMessage = errorCode; // annotation message used directly
+                    }
 
                     Integer min = extractArgument(fieldError.getArguments(), 2);
                     Integer max = extractArgument(fieldError.getArguments(), 1);
@@ -98,6 +112,25 @@ public class GlobalExceptionHandler {
                 fieldErrors,
                 HttpStatus.BAD_REQUEST
         );
+    }
+
+    /**
+     * Handle AccessDeniedException from @PreAuthorize
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(
+            AccessDeniedException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse error = ErrorResponse.builder()
+                .code(HttpStatus.FORBIDDEN.value())
+                .errorCode("ERROR-008")
+                .message("Permission denied")
+                .httpStatus(HttpStatus.FORBIDDEN)
+                .url(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     /**

@@ -8,12 +8,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component("myAuditorProvider")
-public class AuditorAwareImpl implements AuditorAware<String> {
+public class AuditorAwareImpl implements AuditorAware<UUID> {
     @Override
     @NonNull
-    public Optional<String> getCurrentAuditor() {
+    public Optional<UUID> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -22,10 +23,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
         Object principal = authentication.getPrincipal();
         if (principal instanceof CustomUserPrincipal customPrincipal) {
-            return Optional.ofNullable(customPrincipal.getUsername());
-        }
-        if (principal instanceof String strPrincipal && !"anonymousUser".equals(strPrincipal)) {
-            return Optional.of(strPrincipal);
+            return Optional.ofNullable(customPrincipal.getUserId());
         }
         return Optional.empty();
     }

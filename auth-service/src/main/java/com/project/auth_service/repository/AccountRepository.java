@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface AccountRepository extends JpaRepository<Account, UUID> {
 
     @Query(value = "select a from Account a " +
-            "where a.status = 1 and a.username =:email and a.deleteAt is null")
+            "where a.status = 1 and a.email =:email and a.deleteAt is null")
     Optional<Account> getAccountExisted(String email);
 
     @Query(value = "select a from Account a where a.username =:username and a.status = 1 and a.deleteAt is null")

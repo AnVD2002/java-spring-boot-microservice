@@ -1,39 +1,56 @@
 package com.project.user_service.service.impl;
 
 import com.project.user_service.dto.AccountCreatedEvent;
+import com.project.user_service.dto.response.UserResponse;
 import com.project.user_service.entity.User;
 import com.project.user_service.repository.UserRepository;
 import com.project.user_service.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
+
+    @Override
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(this::toResponse);
+    }
 
     @Transactional
     public void createUser(AccountCreatedEvent event) {
-
-        // CASE 1: user đã tồn tại (idempotent)
         if (userRepository.existsByAccountId(event.getAccountId())) {
-            return; // coi như success
+            return;
         }
-
-        // CASE 2: validate lỗi
         if (event.getEmail() == null) {
             throw new IllegalArgumentException("Email is null");
         }
-
-        // CASE 3: save user
         User user = User.builder()
                 .accountId(event.getAccountId())
                 .email(event.getEmail())
+                .username(event.getUsername())
+                .status(1)
                 .build();
-
         userRepository.save(user);
+    }
 
-        // nếu lỗi DB → throw exception → rollback user DB
+    private UserResponse toResponse(User user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .accountId(user.getAccountId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .address(user.getAddress())
+                .phoneNumber(user.getPhoneNumber())
+                .status(user.getStatus())
+                .insertedAt(user.getInsertedAt())
+                .build();
     }
 }

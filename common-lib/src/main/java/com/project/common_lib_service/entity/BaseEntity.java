@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.UUID;
 
 @MappedSuperclass
 @Getter
@@ -32,12 +33,12 @@ public class BaseEntity implements Serializable {
 
     @CreatedBy
     @Column(name = "inserted_by", updatable = false)
-    private Long insertedBy;
+    private UUID insertedBy;
 
     @LastModifiedBy
     @Column(name = "updated_by")
-    private Long updateBy;
+    private UUID updateBy;
 
-    @Column(name = "delete_by")
-    private Long deleteBy;
+    @Column(name = "deleted_by")
+    private UUID deleteBy;
 }

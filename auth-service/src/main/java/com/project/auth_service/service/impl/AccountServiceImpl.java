@@ -4,6 +4,8 @@ import com.project.auth_service.dto.response.AccountInfoDto;
 import com.project.auth_service.entity.Account;
 import com.project.auth_service.repository.AccountRepository;
 import com.project.auth_service.service.AccountService;
+import com.project.common_lib_service.exception.AuthenticationError;
+import com.project.common_lib_service.exception.SystemException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,7 @@ public class AccountServiceImpl implements AccountService {
 
     public Account getAccountByEmail(String email) {
         return accountRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Account not found with email: " + email));
+                .orElseThrow(() -> new SystemException(AuthenticationError.AUTH_002));
     }
 
     @Override

@@ -26,9 +26,8 @@ public class LoginDefaultController {
     public ResponseEntity<ResponseData<LoginResponse>> loginDefault(@Valid @RequestBody LoginDefaultRequest loginDefaultRequest, HttpServletRequest httpServletRequest) {
 
         String deviceId = httpServletRequest.getHeader("X-Device-ID");
-        String accountId = httpServletRequest.getHeader("X-Account-ID");
 
-        LoginResponse loginDefaultResponse = loginDefaultService.loginDefault(loginDefaultRequest, deviceId, accountId);
+        LoginResponse loginDefaultResponse = loginDefaultService.loginDefault(loginDefaultRequest, deviceId);
 
         return ResponseUtils.success(loginDefaultResponse);
     }

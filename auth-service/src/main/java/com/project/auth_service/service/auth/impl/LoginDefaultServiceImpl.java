@@ -56,7 +56,7 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
      * @param accountIdRequest
      * @return
      */
-    public LoginResponse loginDefault(LoginDefaultRequest loginDefaultRequest, String deviceIdRequest, String accountIdRequest) {
+    public LoginResponse loginDefault(LoginDefaultRequest loginDefaultRequest, String deviceIdRequest) {
 
         String username = loginDefaultRequest.getUsername();
         String rawPassword = loginDefaultRequest.getPassword();
@@ -98,8 +98,8 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
         // 4. Save refresh token in Redis (with TTL)
         long refreshTokenTtl = jwtProperties.getRefreshExpiration();
 
-        // after getOrCreate deviceId
-        String deviceId = deviceService.getAndSaveDeviceId(deviceIdRequest, accountIdRequest);
+        // after getOrCreate deviceId — accountId is resolved from credentials, not from request header
+        String deviceId = deviceService.getAndSaveDeviceId(deviceIdRequest, accountInfoDto.getId());
 
         // Save refresh token with deviceId
         String refreshTokenKey = REFRESH_TOKEN_KEY + accountInfoDto.getId() + ":" + deviceId;

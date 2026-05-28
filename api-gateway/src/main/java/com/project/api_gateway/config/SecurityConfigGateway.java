@@ -33,7 +33,10 @@ public class SecurityConfigGateway {
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .exceptionHandling(e -> e.authenticationEntryPoint(customAuthenticationEntryPoint()))
                 .authorizeExchange(exchanges -> exchanges
-                        .matchers(ServerWebExchangeMatchers.pathMatchers("/api/v1/auth/**"))
+                        .matchers(ServerWebExchangeMatchers.pathMatchers(
+                                "/api/v1/auth/**",
+                                "/api/v1/test/public"
+                        ))
                         .permitAll()
                         .anyExchange().authenticated()
                 )

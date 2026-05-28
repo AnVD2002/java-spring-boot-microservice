@@ -16,14 +16,14 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   liquibase:
-    change-log: classpath:config.liquibase/changelog/master.xml
-    enabled: false
+    change-log: classpath:db/master.xml
+    enabled: true
 
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
@@ -73,11 +73,17 @@ logging:
     org.springframework.orm.jpa: DEBUG
     org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
 
+# ===== INTERNAL SERVICE SECRET =====
+internal:
+  secret: ${INTERNAL_SECRET:change-me-in-prod}
+
 # ===== AUTH TOKEN (REDIS) =====
 auth:
   token:
     refresh:
       redis-prefix: "auth:refresh:${spring.application.name}:"
       ttl-days: 7
+  device:
+    max-per-account: 3
 
 

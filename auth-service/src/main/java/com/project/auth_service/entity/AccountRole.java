@@ -29,5 +29,5 @@ public class AccountRole extends BaseEntity {
     private UUID accountId;
 
     @Column(name = "role_id", nullable = false)
-    private UUID roleId;
+    private Long roleId;
 }

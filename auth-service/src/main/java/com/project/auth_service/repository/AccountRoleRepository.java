@@ -21,7 +21,7 @@ public interface AccountRoleRepository extends JpaRepository<AccountRole, UUID> 
     @Query(value = "select r.name from Account a " +
             "inner join AccountRole ar on ar.accountId = a.id " +
             "inner join Role r on r.id =ar.roleId " +
-            "where a.username =:email " +
+            "where a.email =:email " +
             "and a.status = 1 and a.deleteAt is null")
     List<String> getRoleNameByEmail(String email);
 }

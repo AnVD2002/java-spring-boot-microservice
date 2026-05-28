@@ -3,10 +3,8 @@ package com.project.auth_service.entity;
 import com.project.common_lib_service.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.io.Serial;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -21,9 +19,9 @@ public class Role extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @UuidGenerator
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "name", unique = true, nullable = false)
     private String name;

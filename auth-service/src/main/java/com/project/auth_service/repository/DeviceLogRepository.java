@@ -6,20 +6,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface DeviceLogRepository extends JpaRepository<DeviceLog, UUID> {
 
-    @Query(value = "select dl from DeviceLog dl " +
-            "inner join AccountToken at on at.userId = dl.userId " +
-            "and dl.status = 1 " +
-            "and at.isRevoked is false " +
-            "and dl.userId =:accountId")
+    @Query("select dl from DeviceLog dl where dl.userId = :accountId and dl.status = 1")
     List<DeviceLog> findAccountUsingByAccountId(UUID accountId);
 
-    @Query(value = "select dl from DeviceLog dl " +
-            "inner join AccountToken at on at.userId = dl.userId " +
-            "and dl.status = 1 ")
+    @Query("select dl from DeviceLog dl where dl.userId = :accountId")
     List<DeviceLog> findByAccountId(UUID accountId);
+
+    Optional<DeviceLog> findByDeviceIdAndUserId(UUID deviceId, UUID userId);
 }

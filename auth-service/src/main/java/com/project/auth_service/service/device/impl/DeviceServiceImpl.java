@@ -1,5 +1,6 @@
 package com.project.auth_service.service.device.impl;
 
+import com.project.auth_service.config.DeviceProperties;
 import com.project.auth_service.entity.DeviceLog;
 import com.project.auth_service.repository.DeviceLogRepository;
 import com.project.auth_service.service.device.DeviceService;
@@ -7,7 +8,6 @@ import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.SystemException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -19,6 +19,7 @@ import java.util.UUID;
 public class DeviceServiceImpl implements DeviceService {
 
     private final DeviceLogRepository deviceLogRepository;
+    private final DeviceProperties deviceProperties;
 
     /**
      * Get and save deviceId
@@ -27,60 +28,35 @@ public class DeviceServiceImpl implements DeviceService {
      * @param accountId
      * @return
      */
-    public String getAndSaveDeviceId(String deviceId, String accountId) {
+    public String getAndSaveDeviceId(String deviceId, UUID accountId) {
 
-        DeviceLog newDeviceLog = new DeviceLog();
+        // Known device: client sent a deviceId it previously received
+        if (StringUtils.hasText(deviceId)) {
+            DeviceLog existing = deviceLogRepository.findByDeviceIdAndUserId(UUID.fromString(deviceId), accountId)
+                    .orElse(null);
 
-        UUID newDeviceId = UUID.randomUUID();
-
-        List<DeviceLog> devicesByAccountId = deviceLogRepository.findByAccountId(UUID.fromString(accountId));
-
-        if (!CollectionUtils.isEmpty(devicesByAccountId)) {
-            List<UUID> deviceIdLists = devicesByAccountId.stream().map(DeviceLog::getDeviceId).toList();
-
-            List<String> deviceIdListString = deviceIdLists.stream()
-                    .map(UUID::toString)
-                    .toList();
-
-            //If deviceId and accountId are provided, check if deviceId exists for the account
-            if (StringUtils.hasText(deviceId) && StringUtils.hasText(accountId)) {
-                List<DeviceLog> deviceUsing = deviceLogRepository.findAccountUsingByAccountId(UUID.fromString(accountId));
-
-                // Limit to 3 devices
-                if (deviceUsing.size() > 3) {
-                    throw new SystemException(AuthenticationError.AUTH_002);
-                }
-
-                // If deviceId does not exist, create new device log
-                if (!deviceIdListString.contains(deviceId)) {
-                    newDeviceLog = DeviceLog.builder()
-                            .userId(UUID.fromString(accountId))
-                            .deviceId(newDeviceId)
-                            .lastSeenAt(LocalDateTime.now())
-                            .firstSeenAt(LocalDateTime.now())
-                            .build();
-                } else {
-                    for (DeviceLog deviceLog : devicesByAccountId) {
-                        if (deviceId.equals(deviceLog.getId().toString())) {
-                            deviceLog.setLastSeenAt(LocalDateTime.now());
-                            newDeviceLog = deviceLog;
-                            newDeviceId = deviceLog.getDeviceId();
-                        }
-                    }
-                }
-
+            if (existing != null) {
+                existing.setLastSeenAt(LocalDateTime.now());
+                deviceLogRepository.save(existing);
+                return existing.getDeviceId().toString();
             }
-        } else {
-            newDeviceLog = DeviceLog.builder()
-                    .userId(UUID.fromString(accountId))
-                    .deviceId(newDeviceId)
-                    .lastSeenAt(LocalDateTime.now())
-                    .firstSeenAt(LocalDateTime.now())
-                    .build();
         }
 
-        deviceLogRepository.save(newDeviceLog);
+        // New device: check limit before registering
+        List<DeviceLog> activeDevices = deviceLogRepository.findAccountUsingByAccountId(accountId);
+        if (activeDevices.size() >= deviceProperties.getMaxPerAccount()) {
+            throw new SystemException(AuthenticationError.AUTH_004);
+        }
 
+        UUID newDeviceId = UUID.randomUUID();
+        DeviceLog newDeviceLog = DeviceLog.builder()
+                .userId(accountId)
+                .deviceId(newDeviceId)
+                .firstSeenAt(LocalDateTime.now())
+                .lastSeenAt(LocalDateTime.now())
+                .build();
+
+        deviceLogRepository.save(newDeviceLog);
         return newDeviceId.toString();
     }
 }

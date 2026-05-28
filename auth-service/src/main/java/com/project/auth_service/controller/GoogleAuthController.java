@@ -6,6 +6,7 @@ import com.project.auth_service.service.provider.GoogleOAuth2Service;
 import com.project.auth_service.service.auth.LoginOAuth2Service;
 import com.project.auth_service.service.facade.RegisterAccountFacade;
 import com.project.common_lib_service.utils.ResponseUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +35,7 @@ public class GoogleAuthController {
             @RequestParam String code,
             @RequestParam(defaultValue = "google") String loginType) {
         String token = googleOAuth2Service.authenticateAndFetchProfile(loginType, code);
-        return ResponseEntity.ok(Map.of("access_token", token));
+        return ResponseEntity.ok(Map.of("id_token", token));
     }
 
     @GetMapping("/test")
@@ -44,12 +45,12 @@ public class GoogleAuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginWithGoogle(@RequestBody LoginGoogleRequest request) {
+    public ResponseEntity<?> loginWithGoogle(@Valid @RequestBody LoginGoogleRequest request) {
         return ResponseEntity.ok(loginOAuth2Service.loginOauth2(request));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerWithGoogle(@RequestBody AccountRegistrationRequest request) {
+    public ResponseEntity<?> registerWithGoogle(@Valid @RequestBody AccountRegistrationRequest request) {
         registerAccountFacade.register(request);
         return ResponseUtils.success();
     }

@@ -46,6 +46,12 @@ spring:
           predicates:
             - Path=/api/v1/notifications/**
 
+        # ===== TEST (auth-service) =====
+        - id: test-permission
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/test/**
+
 # ===== JWT (for token verification in gateway) =====
 jwt:
   public-key: classpath:keys/public.pem

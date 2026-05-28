@@ -36,7 +36,7 @@
     <!-- ================== ROLES ================== -->
     <changeSet id="2-create-roles" author="anvd35">
         <createTable tableName="roles">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
@@ -62,7 +62,7 @@
             <column name="account_id" type="UUID">
                 <constraints nullable="false"/>
             </column>
-            <column name="role_id" type="UUID">
+            <column name="role_id" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
 
@@ -141,5 +141,24 @@
         <addForeignKeyConstraint baseTableName="device_log" baseColumnNames="user_id"
                                  referencedTableName="accounts" referencedColumnNames="id"
                                  constraintName="fk_device_log_user"/>
+    </changeSet>
+
+    <!-- ================== SEED ROLES ================== -->
+    <changeSet id="7-seed-roles" author="anvd35">
+        <insert tableName="roles">
+            <column name="name" value="ADMIN"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="name" value="USER"/>
+        </insert>
+    </changeSet>
+
+    <!-- ================== RENAME delete_by → deleted_by (align with BaseEntity) ================== -->
+    <changeSet id="6-rename-delete-by-columns" author="anvd35">
+        <renameColumn tableName="accounts"      oldColumnName="delete_by" newColumnName="deleted_by" columnDataType="UUID"/>
+        <renameColumn tableName="roles"         oldColumnName="delete_by" newColumnName="deleted_by" columnDataType="UUID"/>
+        <renameColumn tableName="account_roles" oldColumnName="delete_by" newColumnName="deleted_by" columnDataType="UUID"/>
+        <renameColumn tableName="account_tokens" oldColumnName="delete_by" newColumnName="deleted_by" columnDataType="UUID"/>
+        <renameColumn tableName="device_log"    oldColumnName="delete_by" newColumnName="deleted_by" columnDataType="UUID"/>
     </changeSet>
 </databaseChangeLog>

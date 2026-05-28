@@ -6,6 +6,7 @@ import com.project.auth_service.dto.request.AccountRegistrationRequestNormal;
 import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.entity.Account;
 import com.project.auth_service.kafka.producer.RegistrationEmailConfirmedEvent;
+import com.project.auth_service.service.AccountRoleService;
 import com.project.auth_service.service.AccountService;
 import com.project.auth_service.service.auth.RegisterAccountService;
 import com.project.auth_service.service.provider.GoogleOAuth2Service;
@@ -14,6 +15,7 @@ import com.project.common_lib_service.exception.SystemException;
 import com.project.common_lib_service.service.KafkaProducerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -22,6 +24,7 @@ import java.util.Optional;
 
 import static com.project.auth_service.utils.SystemUtils.generateOtp;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RegisterAccountServiceImpl implements RegisterAccountService {
@@ -31,6 +34,8 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
     private final PasswordEncoder passwordEncoder;
 
     private final AccountService accountService;
+
+    private final AccountRoleService accountRoleService;
 
     private final OtpTopicProperties otpTopicProperties;
 
@@ -51,6 +56,10 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
         // If no user info is returned => throw exception
         if (ObjectUtils.isEmpty(googleUserInfo)) {
             throw new SystemException(SystemError.ERROR_029); // Failed to validate Google token
+        }
+
+        if (!Boolean.TRUE.equals(googleUserInfo.getEmailVerified())) {
+            throw new SystemException(SystemError.ERROR_029); // Email not verified by Google
         }
 
         String email = googleUserInfo.getEmail();
@@ -75,6 +84,7 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
                 .build();
 
         accountService.saveAccount(account);
+        accountRoleService.assignDefaultRole(account);
 
         return account;
 
@@ -102,6 +112,7 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
                 .build();
 
         accountService.saveAccount(account);
+        accountRoleService.assignDefaultRole(account);
 
         String otp = generateOtp();
 
@@ -110,7 +121,11 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
                 .otp(otp)
                 .build();
 
-         KafkaProducerService.sendMessage(otpTopicProperties.getSendConfirmationRegistrationEmail(), request.getEmail(), event);
+        try {
+            KafkaProducerService.sendMessage(otpTopicProperties.getSendConfirmationRegistrationEmail(), request.getEmail(), event);
+        } catch (Exception e) {
+            log.warn("Failed to send confirmation email event for email={}: {}", request.getEmail(), e.getMessage());
+        }
 
         return account;
 

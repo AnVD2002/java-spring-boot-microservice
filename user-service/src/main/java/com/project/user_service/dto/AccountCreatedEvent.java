@@ -10,7 +10,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountCreatedEvent {
-    private String sagaId;      // để trace & rollback
+    private String sagaId;
     private UUID accountId;
     private String email;
+    private String username;
 }

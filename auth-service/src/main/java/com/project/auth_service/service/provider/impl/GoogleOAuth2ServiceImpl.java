@@ -74,9 +74,11 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
                                 .map(Object::toString)
                                 .orElseThrow(() -> new SystemException(SystemError.ERROR_029));
                     }
+                    throw new SystemException(SystemError.ERROR_029, "Empty token response from Google");
 
                 case FACEBOOK:
                     // TODO: implement facebook login
+                    throw new SystemException(SystemError.ERROR_029, "Facebook login not yet supported");
 
                 default:
                     throw new SystemException(SystemError.ERROR_029, "Unsupported login type: " + loginType);
@@ -99,7 +101,7 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
 
     @Override
     public String generateUrl() {
-        String url = UriComponentsBuilder.fromUriString("https://accounts.google.com/o/oauth2/v2/auth")
+        return UriComponentsBuilder.fromUriString("https://accounts.google.com/o/oauth2/v2/auth")
                 .queryParam("client_id", clientId)
                 .queryParam("redirect_uri", redirectUri)
                 .queryParam("response_type", "code")
@@ -107,8 +109,6 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
                 .queryParam("access_type", "offline")
                 .build()
                 .toUriString();
-
-        return Map.of("url", url).toString();
     }
 
     public GoogleUserInfo getGoogleUserInfo(String accessToken) {

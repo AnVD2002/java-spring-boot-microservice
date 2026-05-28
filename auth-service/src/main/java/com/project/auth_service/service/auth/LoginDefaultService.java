@@ -7,7 +7,7 @@ import com.project.auth_service.dto.response.LoginResponse;
 import java.util.List;
 
 public interface LoginDefaultService {
-    LoginResponse loginDefault(LoginDefaultRequest loginDefaultRequest, String deviceIdRequest, String accountIdRequest);
+    LoginResponse loginDefault(LoginDefaultRequest loginDefaultRequest, String deviceIdRequest);
 
     List<String> getListRoleByUsername(String username);
 

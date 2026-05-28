@@ -35,6 +35,7 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.ACKS_CONFIG, "all");
         configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
         configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 3000); // fail fast nếu Kafka down
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 

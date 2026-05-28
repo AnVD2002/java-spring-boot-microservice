@@ -1,5 +1,6 @@
 package com.project.auth_service.service.auth.impl;
 
+import com.project.auth_service.dto.response.LoginResponse;
 import com.project.auth_service.service.auth.RefreshTokenService;
 import com.project.common_lib_service.dto.RefreshTokenInfo;
 import com.project.common_lib_service.exception.SystemError;
@@ -19,9 +20,36 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
-    public String refreshToken(String refreshToken) {
+    public LoginResponse refreshToken(String refreshToken) {
+        RefreshTokenInfo tokenInfo = validateAndExtract(refreshToken);
+
+        // Revoke used token — prevents replay attacks
+        refreshTokenRepository.delete(tokenInfo.getJti());
+
+        // Issue new access token + new refresh token (rotation)
+        String newAccessToken = jwtProvider.generateAccessToken(
+                tokenInfo.getUsername(), tokenInfo.getAccountId(), tokenInfo.getRoles());
+
+        String newRefreshToken = jwtProvider.generateRefreshToken(
+                tokenInfo.getUsername(), tokenInfo.getAccountId(), tokenInfo.getRoles());
+
+        return LoginResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .username(tokenInfo.getUsername())
+                .roles(tokenInfo.getRoles())
+                .build();
+    }
+
+    @Override
+    public void logout(String refreshToken) {
+        RefreshTokenInfo tokenInfo = validateAndExtract(refreshToken);
+        refreshTokenRepository.delete(tokenInfo.getJti());
+    }
+
+    private RefreshTokenInfo validateAndExtract(String refreshToken) {
         if (!jwtProvider.isSignatureValid(refreshToken) || jwtProvider.isTokenExpired(refreshToken)) {
-            throw new SystemException(SystemError.ERROR_019); // Token expired
+            throw new SystemException(SystemError.ERROR_019);
         }
 
         String jti = jwtProvider.extractJti(refreshToken);
@@ -29,16 +57,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             throw new SystemException(SystemError.ERROR_019);
         }
 
-        RefreshTokenInfo tokenInfo = refreshTokenRepository.findByJti(jti)
+        return refreshTokenRepository.findByJti(jti)
                 .orElseThrow(() -> new SystemException(SystemError.ERROR_019)); // revoked or not found
-
-        // Revoke used token — prevents replay attacks
-        refreshTokenRepository.delete(jti);
-
-        return jwtProvider.generateAccessToken(
-                tokenInfo.getUsername(),
-                tokenInfo.getAccountId(),
-                tokenInfo.getRoles()
-        );
     }
 }
