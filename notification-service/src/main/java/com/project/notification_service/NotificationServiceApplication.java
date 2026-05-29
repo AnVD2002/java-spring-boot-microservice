@@ -10,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 		"com.project.common_lib_service.config",
 		"com.project.common_lib_service.service",
 		"com.project.common_lib_service.exception",
+		"com.project.common_lib_service.kafka",
 })
 public class NotificationServiceApplication {
 

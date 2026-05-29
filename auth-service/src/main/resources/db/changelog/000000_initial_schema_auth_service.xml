@@ -35,6 +35,9 @@
 
     <!-- ================== ROLES ================== -->
     <changeSet id="2-create-roles" author="anvd35">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="roles"/></not>
+        </preConditions>
         <createTable tableName="roles">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -86,6 +89,9 @@
 
     <!-- ================== ACCOUNT_TOKENS ================== -->
     <changeSet id="4-create-account-tokens" author="anvd35">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="account_tokens"/></not>
+        </preConditions>
         <createTable tableName="account_tokens">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
@@ -120,6 +126,9 @@
 
     <!-- ================== DEVICE_LOG ================== -->
     <changeSet id="5-create-device-log" author="anvd35">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="device_log"/></not>
+        </preConditions>
         <createTable tableName="device_log">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
@@ -145,6 +154,9 @@
 
     <!-- ================== SEED ROLES ================== -->
     <changeSet id="7-seed-roles" author="anvd35">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM roles WHERE name IN ('ADMIN', 'USER')</sqlCheck>
+        </preConditions>
         <insert tableName="roles">
             <column name="name" value="ADMIN"/>
         </insert>
