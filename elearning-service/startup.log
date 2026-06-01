@@ -1,0 +1,109 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.6)
+
+2026-06-01T11:08:24.372+07:00  INFO 21488 --- [elearning-service] [           main] c.p.e.ElearningServiceApplication        : Starting ElearningServiceApplication v0.0.1-SNAPSHOT using Java 21.0.9 with PID 21488 (F:\AnVD\dev\java-spring-boot-microservice\elearning-service\target\elearning-service-0.0.1-SNAPSHOT.jar started by anvud in F:\AnVD\dev\java-spring-boot-microservice\elearning-service)
+2026-06-01T11:08:24.411+07:00  INFO 21488 --- [elearning-service] [           main] c.p.e.ElearningServiceApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-06-01T11:08:27.234+07:00  INFO 21488 --- [elearning-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-06-01T11:08:27.237+07:00  INFO 21488 --- [elearning-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-01T11:08:27.488+07:00  INFO 21488 --- [elearning-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 236 ms. Found 2 JPA repository interfaces.
+2026-06-01T11:08:28.403+07:00  INFO 21488 --- [elearning-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=2c622ad4-a1f7-355b-8e99-e0ad09faf2cc
+2026-06-01T11:08:33.354+07:00  INFO 21488 --- [elearning-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8087 (http)
+2026-06-01T11:08:33.440+07:00  INFO 21488 --- [elearning-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-01T11:08:33.449+07:00  INFO 21488 --- [elearning-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.46]
+2026-06-01T11:08:33.540+07:00  INFO 21488 --- [elearning-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-01T11:08:33.544+07:00  INFO 21488 --- [elearning-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 9002 ms
+2026-06-01T11:08:34.379+07:00  INFO 21488 --- [elearning-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-01T11:08:34.937+07:00  INFO 21488 --- [elearning-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@60ed0b9d
+2026-06-01T11:08:34.948+07:00  INFO 21488 --- [elearning-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-01T11:08:35.376+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.database                       : Set default schema name to public
+2026-06-01T11:08:37.191+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.changelog                      : Creating database history table with name: public.databasechangelog
+2026-06-01T11:08:37.256+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.changelog                      : Reading from public.databasechangelog
+2026-06-01T11:08:37.284+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.snapshot                       : Creating snapshot
+2026-06-01T11:08:37.397+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.lockservice                    : Successfully acquired change log lock
+2026-06-01T11:08:37.399+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.command                        : Using deploymentId: 0286914261
+2026-06-01T11:08:37.402+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.changelog                      : Reading from public.databasechangelog
+2026-06-01T11:08:37.446+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.ui                             : Running Changeset: db/changelog/000000_initial_schema_elearning_service.xml::1-create-courses::anvd35
+2026-06-01T11:08:37.466+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.changelog                      : Table courses created
+2026-06-01T11:08:37.473+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.changelog                      : ChangeSet db/changelog/000000_initial_schema_elearning_service.xml::1-create-courses::anvd35 ran successfully in 23ms
+2026-06-01T11:08:37.485+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.ui                             : Running Changeset: db/changelog/000000_initial_schema_elearning_service.xml::2-create-lessons::anvd35
+2026-06-01T11:08:37.503+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.changelog                      : Table lessons created
+2026-06-01T11:08:37.504+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.changelog                      : ChangeSet db/changelog/000000_initial_schema_elearning_service.xml::2-create-lessons::anvd35 ran successfully in 18ms
+2026-06-01T11:08:37.519+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.util                           : UPDATE SUMMARY
+2026-06-01T11:08:37.520+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.util                           : Run:                          2
+2026-06-01T11:08:37.520+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.util                           : Previously run:               0
+2026-06-01T11:08:37.521+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.util                           : Filtered out:                 0
+2026-06-01T11:08:37.521+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.util                           : -------------------------------
+2026-06-01T11:08:37.522+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.util                           : Total change sets:            2
+2026-06-01T11:08:37.524+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.util                           : Update summary generated
+2026-06-01T11:08:37.528+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.command                        : Update command completed successfully.
+2026-06-01T11:08:37.530+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.ui                             : Liquibase: Update has been successful. Rows affected: 2
+2026-06-01T11:08:37.538+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.lockservice                    : Successfully released change log lock
+2026-06-01T11:08:37.541+07:00  INFO 21488 --- [elearning-service] [           main] liquibase.command                        : Command execution complete
+2026-06-01T11:08:39.274+07:00 DEBUG 21488 --- [elearning-service] [           main] j.LocalContainerEntityManagerFactoryBean : Building JPA container EntityManagerFactory for persistence unit 'default'
+2026-06-01T11:08:39.325+07:00  INFO 21488 --- [elearning-service] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-01T11:08:39.470+07:00  INFO 21488 --- [elearning-service] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.29.Final
+2026-06-01T11:08:39.562+07:00  INFO 21488 --- [elearning-service] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-01T11:08:39.909+07:00  INFO 21488 --- [elearning-service] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-01T11:08:39.992+07:00  WARN 21488 --- [elearning-service] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-01T11:08:40.013+07:00  INFO 21488 --- [elearning-service] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.1
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-01T11:08:42.142+07:00  INFO 21488 --- [elearning-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-01T11:08:42.154+07:00  INFO 21488 --- [elearning-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-01T11:08:42.444+07:00  WARN 21488 --- [elearning-service] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-01T11:08:42.626+07:00 TRACE 21488 --- [elearning-service] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 
+	c.p.e.c.CourseController:
+	{GET [/api/v1/elearning/health]}: health()
+2026-06-01T11:08:42.639+07:00 TRACE 21488 --- [elearning-service] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 
+	o.s.b.a.w.s.e.BasicErrorController:
+	{ [/error]}: error(HttpServletRequest)
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+2026-06-01T11:08:42.647+07:00 DEBUG 21488 --- [elearning-service] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 3 mappings in 'requestMappingHandlerMapping'
+2026-06-01T11:08:42.847+07:00 DEBUG 21488 --- [elearning-service] [           main] swordEncoderAuthenticationManagerBuilder : No authenticationProviders and no parentAuthenticationManager defined. Returning null.
+2026-06-01T11:08:43.507+07:00 DEBUG 21488 --- [elearning-service] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure Or [Mvc [pattern='/api/v1/elearning/**']] with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, InternalAuthFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-06-01T11:08:46.751+07:00  INFO 21488 --- [elearning-service] [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2026-06-01T11:08:46.765+07:00  INFO 21488 --- [elearning-service] [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2026-06-01T11:08:46.817+07:00  WARN 21488 --- [elearning-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-06-01T11:08:46.848+07:00  INFO 21488 --- [elearning-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8087 (http) with context path '/'
+2026-06-01T11:08:47.877+07:00  INFO 21488 --- [elearning-service] [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2026-06-01T11:08:47.890+07:00  INFO 21488 --- [elearning-service] [           main] c.p.e.ElearningServiceApplication        : Started ElearningServiceApplication in 25.659 seconds (process running for 27.213)
+2026-06-01T11:08:59.798+07:00  INFO 21488 --- [elearning-service] [nio-8087-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-01T11:08:59.800+07:00  INFO 21488 --- [elearning-service] [nio-8087-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-01T11:08:59.803+07:00  INFO 21488 --- [elearning-service] [nio-8087-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-06-01T11:08:59.820+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-1] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/elearning/health
+2026-06-01T11:08:59.825+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-01T11:08:59.917+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-2] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/elearning/health
+2026-06-01T11:08:59.918+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-01T11:08:59.956+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-4] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/elearning/health
+2026-06-01T11:08:59.958+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-4] o.s.security.web.FilterChainProxy        : Secured GET /api/v1/elearning/health
+2026-06-01T11:08:59.960+07:00 TRACE 21488 --- [elearning-service] [nio-8087-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.project.elearning_service.controller.CourseController#health()
+2026-06-01T11:08:59.963+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-4] o.j.s.OpenEntityManagerInViewInterceptor : Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:08:59.972+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-4] horizationManagerBeforeMethodInterceptor : Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.elearning_service.controller.CourseController.health(); target is of class [com.project.elearning_service.controller.CourseController]
+2026-06-01T11:08:59.996+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-4] horizationManagerBeforeMethodInterceptor : Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.elearning_service.controller.CourseController.health(); target is of class [com.project.elearning_service.controller.CourseController]
+2026-06-01T11:09:00.027+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-4] o.j.s.OpenEntityManagerInViewInterceptor : Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:09:00.062+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-5] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/elearning/health
+2026-06-01T11:09:00.063+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-5] o.s.security.web.FilterChainProxy        : Secured GET /api/v1/elearning/health
+2026-06-01T11:09:00.063+07:00 TRACE 21488 --- [elearning-service] [nio-8087-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.project.elearning_service.controller.CourseController#health()
+2026-06-01T11:09:00.063+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-5] o.j.s.OpenEntityManagerInViewInterceptor : Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:09:00.065+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-5] horizationManagerBeforeMethodInterceptor : Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.elearning_service.controller.CourseController.health(); target is of class [com.project.elearning_service.controller.CourseController]
+2026-06-01T11:09:00.065+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-5] horizationManagerBeforeMethodInterceptor : Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.elearning_service.controller.CourseController.health(); target is of class [com.project.elearning_service.controller.CourseController]
+2026-06-01T11:09:00.066+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-5] o.j.s.OpenEntityManagerInViewInterceptor : Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:09:00.099+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-7] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/elearning/health
+2026-06-01T11:09:00.101+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-7] o.s.security.web.FilterChainProxy        : Secured GET /api/v1/elearning/health
+2026-06-01T11:09:00.101+07:00 TRACE 21488 --- [elearning-service] [nio-8087-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.project.elearning_service.controller.CourseController#health()
+2026-06-01T11:09:00.101+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-7] o.j.s.OpenEntityManagerInViewInterceptor : Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:09:00.101+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-7] horizationManagerBeforeMethodInterceptor : Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.elearning_service.controller.CourseController.health(); target is of class [com.project.elearning_service.controller.CourseController]
+2026-06-01T11:09:00.104+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-7] horizationManagerBeforeMethodInterceptor : Failed to authorize ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.elearning_service.controller.CourseController.health(); target is of class [com.project.elearning_service.controller.CourseController] with authorization manager org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager@610aa93e and result ExpressionAuthorizationDecision [granted=false, expressionAttribute=hasAnyRole('ADMIN', 'MANAGER', 'USER')]
+2026-06-01T11:09:00.109+07:00 DEBUG 21488 --- [elearning-service] [nio-8087-exec-7] o.j.s.OpenEntityManagerInViewInterceptor : Closing JPA EntityManager in OpenEntityManagerInViewInterceptor

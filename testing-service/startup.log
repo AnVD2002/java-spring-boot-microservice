@@ -1,0 +1,109 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.6)
+
+2026-06-01T11:08:24.139+07:00  INFO 17948 --- [testing-service] [           main] c.p.t.TestingServiceApplication          : Starting TestingServiceApplication v0.0.1-SNAPSHOT using Java 21.0.9 with PID 17948 (F:\AnVD\dev\java-spring-boot-microservice\testing-service\target\testing-service-0.0.1-SNAPSHOT.jar started by anvud in F:\AnVD\dev\java-spring-boot-microservice\elearning-service)
+2026-06-01T11:08:24.149+07:00  INFO 17948 --- [testing-service] [           main] c.p.t.TestingServiceApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-06-01T11:08:27.183+07:00  INFO 17948 --- [testing-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-06-01T11:08:27.186+07:00  INFO 17948 --- [testing-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-01T11:08:27.481+07:00  INFO 17948 --- [testing-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 278 ms. Found 2 JPA repository interfaces.
+2026-06-01T11:08:28.490+07:00  INFO 17948 --- [testing-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=967ded07-d09c-3ce8-bf58-9f73133be5dc
+2026-06-01T11:08:31.997+07:00  INFO 17948 --- [testing-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8086 (http)
+2026-06-01T11:08:32.027+07:00  INFO 17948 --- [testing-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-01T11:08:32.029+07:00  INFO 17948 --- [testing-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.46]
+2026-06-01T11:08:32.114+07:00  INFO 17948 --- [testing-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-01T11:08:32.137+07:00  INFO 17948 --- [testing-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 7797 ms
+2026-06-01T11:08:33.018+07:00  INFO 17948 --- [testing-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-01T11:08:33.485+07:00  INFO 17948 --- [testing-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@734f8317
+2026-06-01T11:08:33.506+07:00  INFO 17948 --- [testing-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-01T11:08:34.050+07:00  INFO 17948 --- [testing-service] [           main] liquibase.database                       : Set default schema name to public
+2026-06-01T11:08:36.187+07:00  INFO 17948 --- [testing-service] [           main] liquibase.changelog                      : Creating database history table with name: public.databasechangelog
+2026-06-01T11:08:36.262+07:00  INFO 17948 --- [testing-service] [           main] liquibase.changelog                      : Reading from public.databasechangelog
+2026-06-01T11:08:36.289+07:00  INFO 17948 --- [testing-service] [           main] liquibase.snapshot                       : Creating snapshot
+2026-06-01T11:08:36.429+07:00  INFO 17948 --- [testing-service] [           main] liquibase.lockservice                    : Successfully acquired change log lock
+2026-06-01T11:08:36.430+07:00  INFO 17948 --- [testing-service] [           main] liquibase.command                        : Using deploymentId: 0286912978
+2026-06-01T11:08:36.433+07:00  INFO 17948 --- [testing-service] [           main] liquibase.changelog                      : Reading from public.databasechangelog
+2026-06-01T11:08:36.485+07:00  INFO 17948 --- [testing-service] [           main] liquibase.ui                             : Running Changeset: db/changelog/000000_initial_schema_testing_service.xml::1-create-exams::anvd35
+2026-06-01T11:08:36.517+07:00  INFO 17948 --- [testing-service] [           main] liquibase.changelog                      : Table exams created
+2026-06-01T11:08:36.519+07:00  INFO 17948 --- [testing-service] [           main] liquibase.changelog                      : ChangeSet db/changelog/000000_initial_schema_testing_service.xml::1-create-exams::anvd35 ran successfully in 26ms
+2026-06-01T11:08:36.564+07:00  INFO 17948 --- [testing-service] [           main] liquibase.ui                             : Running Changeset: db/changelog/000000_initial_schema_testing_service.xml::2-create-questions::anvd35
+2026-06-01T11:08:36.587+07:00  INFO 17948 --- [testing-service] [           main] liquibase.changelog                      : Table questions created
+2026-06-01T11:08:36.588+07:00  INFO 17948 --- [testing-service] [           main] liquibase.changelog                      : ChangeSet db/changelog/000000_initial_schema_testing_service.xml::2-create-questions::anvd35 ran successfully in 23ms
+2026-06-01T11:08:36.601+07:00  INFO 17948 --- [testing-service] [           main] liquibase.util                           : UPDATE SUMMARY
+2026-06-01T11:08:36.602+07:00  INFO 17948 --- [testing-service] [           main] liquibase.util                           : Run:                          2
+2026-06-01T11:08:36.602+07:00  INFO 17948 --- [testing-service] [           main] liquibase.util                           : Previously run:               0
+2026-06-01T11:08:36.603+07:00  INFO 17948 --- [testing-service] [           main] liquibase.util                           : Filtered out:                 0
+2026-06-01T11:08:36.604+07:00  INFO 17948 --- [testing-service] [           main] liquibase.util                           : -------------------------------
+2026-06-01T11:08:36.604+07:00  INFO 17948 --- [testing-service] [           main] liquibase.util                           : Total change sets:            2
+2026-06-01T11:08:36.605+07:00  INFO 17948 --- [testing-service] [           main] liquibase.util                           : Update summary generated
+2026-06-01T11:08:36.611+07:00  INFO 17948 --- [testing-service] [           main] liquibase.command                        : Update command completed successfully.
+2026-06-01T11:08:36.611+07:00  INFO 17948 --- [testing-service] [           main] liquibase.ui                             : Liquibase: Update has been successful. Rows affected: 2
+2026-06-01T11:08:36.616+07:00  INFO 17948 --- [testing-service] [           main] liquibase.lockservice                    : Successfully released change log lock
+2026-06-01T11:08:36.618+07:00  INFO 17948 --- [testing-service] [           main] liquibase.command                        : Command execution complete
+2026-06-01T11:08:38.266+07:00 DEBUG 17948 --- [testing-service] [           main] j.LocalContainerEntityManagerFactoryBean : Building JPA container EntityManagerFactory for persistence unit 'default'
+2026-06-01T11:08:38.331+07:00  INFO 17948 --- [testing-service] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-01T11:08:38.483+07:00  INFO 17948 --- [testing-service] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.29.Final
+2026-06-01T11:08:38.600+07:00  INFO 17948 --- [testing-service] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-01T11:08:39.319+07:00  INFO 17948 --- [testing-service] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-01T11:08:39.432+07:00  WARN 17948 --- [testing-service] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-01T11:08:39.457+07:00  INFO 17948 --- [testing-service] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.1
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-01T11:08:40.659+07:00  INFO 17948 --- [testing-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-01T11:08:40.664+07:00  INFO 17948 --- [testing-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-01T11:08:40.943+07:00  WARN 17948 --- [testing-service] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-01T11:08:41.198+07:00 TRACE 17948 --- [testing-service] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 
+	c.p.t.c.ExamController:
+	{GET [/api/v1/tests/health]}: health()
+2026-06-01T11:08:41.213+07:00 TRACE 17948 --- [testing-service] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 
+	o.s.b.a.w.s.e.BasicErrorController:
+	{ [/error]}: error(HttpServletRequest)
+	{ [/error], produces [text/html]}: errorHtml(HttpServletRequest,HttpServletResponse)
+2026-06-01T11:08:41.221+07:00 DEBUG 17948 --- [testing-service] [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : 3 mappings in 'requestMappingHandlerMapping'
+2026-06-01T11:08:41.599+07:00 DEBUG 17948 --- [testing-service] [           main] swordEncoderAuthenticationManagerBuilder : No authenticationProviders and no parentAuthenticationManager defined. Returning null.
+2026-06-01T11:08:41.863+07:00 DEBUG 17948 --- [testing-service] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure Or [Mvc [pattern='/api/v1/tests/**']] with filters: DisableEncodeUrlFilter, WebAsyncManagerIntegrationFilter, SecurityContextHolderFilter, HeaderWriterFilter, LogoutFilter, InternalAuthFilter, RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, AuthorizationFilter
+2026-06-01T11:08:46.223+07:00  INFO 17948 --- [testing-service] [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2026-06-01T11:08:46.248+07:00  INFO 17948 --- [testing-service] [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2026-06-01T11:08:46.304+07:00  WARN 17948 --- [testing-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-06-01T11:08:46.335+07:00  INFO 17948 --- [testing-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8086 (http) with context path '/'
+2026-06-01T11:08:47.359+07:00  INFO 17948 --- [testing-service] [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2026-06-01T11:08:47.376+07:00  INFO 17948 --- [testing-service] [           main] c.p.t.TestingServiceApplication          : Started TestingServiceApplication in 25.246 seconds (process running for 26.705)
+2026-06-01T11:08:59.366+07:00  INFO 17948 --- [testing-service] [nio-8086-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-01T11:08:59.368+07:00  INFO 17948 --- [testing-service] [nio-8086-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-01T11:08:59.370+07:00  INFO 17948 --- [testing-service] [nio-8086-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-01T11:08:59.391+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-1] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/tests/health
+2026-06-01T11:08:59.396+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-01T11:08:59.485+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-2] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/tests/health
+2026-06-01T11:08:59.488+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-2] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-01T11:08:59.537+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-4] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/tests/health
+2026-06-01T11:08:59.539+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-4] o.s.security.web.FilterChainProxy        : Secured GET /api/v1/tests/health
+2026-06-01T11:08:59.541+07:00 TRACE 17948 --- [testing-service] [nio-8086-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.project.testing_service.controller.ExamController#health()
+2026-06-01T11:08:59.543+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-4] o.j.s.OpenEntityManagerInViewInterceptor : Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:08:59.554+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-4] horizationManagerBeforeMethodInterceptor : Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.testing_service.controller.ExamController.health(); target is of class [com.project.testing_service.controller.ExamController]
+2026-06-01T11:08:59.579+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-4] horizationManagerBeforeMethodInterceptor : Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.testing_service.controller.ExamController.health(); target is of class [com.project.testing_service.controller.ExamController]
+2026-06-01T11:08:59.598+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-4] o.j.s.OpenEntityManagerInViewInterceptor : Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:08:59.635+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-6] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/tests/health
+2026-06-01T11:08:59.636+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-6] o.s.security.web.FilterChainProxy        : Secured GET /api/v1/tests/health
+2026-06-01T11:08:59.636+07:00 TRACE 17948 --- [testing-service] [nio-8086-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.project.testing_service.controller.ExamController#health()
+2026-06-01T11:08:59.636+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-6] o.j.s.OpenEntityManagerInViewInterceptor : Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:08:59.637+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-6] horizationManagerBeforeMethodInterceptor : Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.testing_service.controller.ExamController.health(); target is of class [com.project.testing_service.controller.ExamController]
+2026-06-01T11:08:59.637+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-6] horizationManagerBeforeMethodInterceptor : Authorized method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.testing_service.controller.ExamController.health(); target is of class [com.project.testing_service.controller.ExamController]
+2026-06-01T11:08:59.639+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-6] o.j.s.OpenEntityManagerInViewInterceptor : Closing JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:08:59.677+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-8] o.s.security.web.FilterChainProxy        : Securing GET /api/v1/tests/health
+2026-06-01T11:08:59.678+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-8] o.s.security.web.FilterChainProxy        : Secured GET /api/v1/tests/health
+2026-06-01T11:08:59.678+07:00 TRACE 17948 --- [testing-service] [nio-8086-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.project.testing_service.controller.ExamController#health()
+2026-06-01T11:08:59.678+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-8] o.j.s.OpenEntityManagerInViewInterceptor : Opening JPA EntityManager in OpenEntityManagerInViewInterceptor
+2026-06-01T11:08:59.679+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-8] horizationManagerBeforeMethodInterceptor : Authorizing method invocation ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.testing_service.controller.ExamController.health(); target is of class [com.project.testing_service.controller.ExamController]
+2026-06-01T11:08:59.682+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-8] horizationManagerBeforeMethodInterceptor : Failed to authorize ReflectiveMethodInvocation: public org.springframework.http.ResponseEntity com.project.testing_service.controller.ExamController.health(); target is of class [com.project.testing_service.controller.ExamController] with authorization manager org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager@6e8b3192 and result ExpressionAuthorizationDecision [granted=false, expressionAttribute=hasAnyRole('ADMIN', 'MANAGER', 'USER')]
+2026-06-01T11:08:59.686+07:00 DEBUG 17948 --- [testing-service] [nio-8086-exec-8] o.j.s.OpenEntityManagerInViewInterceptor : Closing JPA EntityManager in OpenEntityManagerInViewInterceptor

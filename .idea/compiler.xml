@@ -29,15 +29,6 @@
         </processorPath>
         <module name="common-lib" />
       </profile>
-      <profile name="Annotation profile for user-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
-        </processorPath>
-        <module name="user-service" />
-      </profile>
       <profile name="Annotation profile for auth-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -47,14 +38,19 @@
         </processorPath>
         <module name="auth-service" />
       </profile>
-      <profile name="Annotation profile for notification-service" enabled="true">
+      <profile name="Annotation profile for testing-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
         </processorPath>
+        <module name="documents-service" />
+        <module name="elearning-service" />
         <module name="api-gateway" />
+        <module name="report-service" />
+        <module name="user-service" />
+        <module name="testing-service" />
         <module name="notification-service" />
       </profile>
     </annotationProcessing>
@@ -69,8 +65,12 @@
       <module name="auth-service" options="-parameters" />
       <module name="bom" options="" />
       <module name="common-lib" options="-parameters" />
+      <module name="documents-service" options="-parameters" />
+      <module name="elearning-service" options="-parameters" />
       <module name="eureka-server" options="-parameters" />
       <module name="notification-service" options="-parameters" />
+      <module name="report-service" options="-parameters" />
+      <module name="testing-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>

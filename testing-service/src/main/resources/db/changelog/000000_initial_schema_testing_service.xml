@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ================== EXAMS ================== -->
+    <changeSet id="1-create-exams" author="anvd35">
+
+        <createTable tableName="exams">
+
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="description" type="TEXT"/>
+
+            <column name="duration_minutes" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="total_questions" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="passing_score" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_by_user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- BaseEntity fields -->
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+
+        </createTable>
+
+    </changeSet>
+
+    <!-- ================== QUESTIONS ================== -->
+    <changeSet id="2-create-questions" author="anvd35">
+
+        <createTable tableName="questions">
+
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="exam_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_question_exam" references="exams(id)"/>
+            </column>
+
+            <column name="content" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="question_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="score" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- BaseEntity fields -->
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>
