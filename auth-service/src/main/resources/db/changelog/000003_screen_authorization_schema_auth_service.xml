@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1-create-screens" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="screens"/></not>
+        </preConditions>
+        <createTable tableName="screens">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="route_path" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="parent_id" type="BIGINT"/>
+            <column name="display_order" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="icon" type="VARCHAR(100)"/>
+            <column name="is_visible" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="screens" baseColumnNames="parent_id"
+                                 referencedTableName="screens" referencedColumnNames="id"
+                                 constraintName="fk_screens_parent"/>
+        <createIndex tableName="screens" indexName="idx_screens_module">
+            <column name="module"/>
+        </createIndex>
+        <createIndex tableName="screens" indexName="idx_screens_parent_id">
+            <column name="parent_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2-create-screen-permissions" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="screen_permissions"/></not>
+        </preConditions>
+        <createTable tableName="screen_permissions">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="screen_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access_type" type="VARCHAR(50)" defaultValue="VIEW">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="screen_permissions" baseColumnNames="screen_id"
+                                 referencedTableName="screens" referencedColumnNames="id"
+                                 constraintName="fk_screen_permissions_screen"/>
+        <addForeignKeyConstraint baseTableName="screen_permissions" baseColumnNames="permission_id"
+                                 referencedTableName="permissions" referencedColumnNames="id"
+                                 constraintName="fk_screen_permissions_permission"/>
+        <addUniqueConstraint tableName="screen_permissions" columnNames="screen_id, permission_id, access_type"
+                             constraintName="uk_screen_permissions_screen_permission_access"/>
+        <createIndex tableName="screen_permissions" indexName="idx_screen_permissions_permission_id">
+            <column name="permission_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="3-seed-super-admin-role" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM roles WHERE name = 'SUPER_ADMIN'</sqlCheck>
+        </preConditions>
+        <insert tableName="roles">
+            <column name="name" value="SUPER_ADMIN"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="4-seed-teacher-role" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM roles WHERE name = 'TEACHER'</sqlCheck>
+        </preConditions>
+        <insert tableName="roles">
+            <column name="name" value="TEACHER"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="5-seed-student-role" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM roles WHERE name = 'STUDENT'</sqlCheck>
+        </preConditions>
+        <insert tableName="roles">
+            <column name="name" value="STUDENT"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="6-seed-dashboard-view-permission" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM permissions WHERE code = 'DASHBOARD_VIEW'</sqlCheck>
+        </preConditions>
+        <insert tableName="permissions">
+            <column name="code" value="DASHBOARD_VIEW"/>
+            <column name="name" value="View dashboard"/>
+            <column name="module" value="DASHBOARD"/>
+            <column name="scope" value="SCREEN"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="7-seed-category-screen-view-permission" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM permissions WHERE code = 'CATEGORY_SCREEN_VIEW'</sqlCheck>
+        </preConditions>
+        <insert tableName="permissions">
+            <column name="code" value="CATEGORY_SCREEN_VIEW"/>
+            <column name="name" value="View category screen"/>
+            <column name="module" value="CATEGORY"/>
+            <column name="scope" value="SCREEN"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="8-seed-teacher-screen-view-permission" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM permissions WHERE code = 'TEACHER_SCREEN_VIEW'</sqlCheck>
+        </preConditions>
+        <insert tableName="permissions">
+            <column name="code" value="TEACHER_SCREEN_VIEW"/>
+            <column name="name" value="View teacher screen"/>
+            <column name="module" value="TEACHER"/>
+            <column name="scope" value="SCREEN"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="9-seed-student-screen-view-permission" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM permissions WHERE code = 'STUDENT_SCREEN_VIEW'</sqlCheck>
+        </preConditions>
+        <insert tableName="permissions">
+            <column name="code" value="STUDENT_SCREEN_VIEW"/>
+            <column name="name" value="View student screen"/>
+            <column name="module" value="STUDENT"/>
+            <column name="scope" value="SCREEN"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

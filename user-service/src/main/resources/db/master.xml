@@ -8,5 +8,6 @@
 
     <!-- Import các file init -->
     <include file="db/changelog/000000_initial_schema_user_service.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/000002_audit_log_user_service.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

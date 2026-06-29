@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1-create-permissions-incremental" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="permissions"/></not>
+        </preConditions>
+        <createTable tableName="permissions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="scope" type="VARCHAR(50)" defaultValue="GLOBAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <createIndex tableName="permissions" indexName="idx_permissions_module">
+            <column name="module"/>
+        </createIndex>
+        <createIndex tableName="permissions" indexName="idx_permissions_scope">
+            <column name="scope"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2-create-role-permissions-incremental" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="role_permissions"/></not>
+        </preConditions>
+        <createTable tableName="role_permissions">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="role_permissions" baseColumnNames="role_id"
+                                 referencedTableName="roles" referencedColumnNames="id"
+                                 constraintName="fk_role_permissions_role"/>
+        <addForeignKeyConstraint baseTableName="role_permissions" baseColumnNames="permission_id"
+                                 referencedTableName="permissions" referencedColumnNames="id"
+                                 constraintName="fk_role_permissions_permission"/>
+        <addUniqueConstraint tableName="role_permissions" columnNames="role_id, permission_id"
+                             constraintName="uk_role_permissions_role_permission"/>
+    </changeSet>
+</databaseChangeLog>

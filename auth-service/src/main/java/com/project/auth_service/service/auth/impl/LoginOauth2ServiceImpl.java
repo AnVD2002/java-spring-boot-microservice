@@ -5,12 +5,14 @@ import com.project.auth_service.dto.response.AccountInfoDto;
 import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.dto.response.LoginResponse;
 import com.project.auth_service.service.AccountService;
+import com.project.auth_service.service.device.DeviceService;
 import com.project.auth_service.service.provider.GoogleOAuth2Service;
 import com.project.auth_service.service.auth.LoginDefaultService;
 import com.project.auth_service.service.auth.LoginOAuth2Service;
 import com.project.common_lib_service.jwt.JwtProvider;
 import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.AuthenticationException;
+import com.project.common_lib_service.exception.BaseException;
 import com.project.common_lib_service.exception.SystemError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,8 +33,10 @@ public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
 
     private final AccountService accountService;
 
+    private final DeviceService deviceService;
+
     @Override
-    public LoginResponse loginOauth2(LoginGoogleRequest loginGoogleRequest) {
+    public LoginResponse loginOauth2(LoginGoogleRequest loginGoogleRequest, String deviceId) {
 
         try {
             GoogleUserInfo googleUserInfo = googleOAuth2Service.verifyAndDecode(loginGoogleRequest.getToken());
@@ -59,19 +63,20 @@ public class LoginOauth2ServiceImpl implements LoginOAuth2Service {
 
             String refreshToken = jwtProvider.generateRefreshToken(username, accountId, roles);
 
+            UUID resolvedDeviceId = deviceService.getAndSaveDeviceId(deviceId, accountId);
+
             return LoginResponse.builder()
                     .accessToken(newAccessToken)
                     .refreshToken(refreshToken)
+                    .deviceId(resolvedDeviceId)
                     .username(username)
                     .email(email)
                     .roles(roles)
                     .build();
+        } catch (BaseException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof AuthenticationException) {
-                throw e;
-            } else {
-                throw new AuthenticationException(SystemError.ERROR_500, "Failed to login with Google account");
-            }
+            throw new AuthenticationException(SystemError.ERROR_500, "Failed to login with Google account");
         }
     }
 }

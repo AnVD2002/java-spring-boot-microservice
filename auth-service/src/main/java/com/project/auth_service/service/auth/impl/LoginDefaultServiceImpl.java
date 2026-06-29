@@ -9,7 +9,6 @@ import com.project.auth_service.service.auth.LoginDefaultService;
 import com.project.auth_service.service.device.DeviceService;
 import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.SystemException;
-import com.project.common_lib_service.jwt.JwtProperties;
 import com.project.common_lib_service.jwt.JwtProvider;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +20,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
@@ -39,11 +39,7 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
 
     private final DeviceService deviceService;
 
-    private final JwtProperties jwtProperties;
-
     private static final String LOGIN_FAIL_KEY = "LOGIN_FAIL:"; // key prefix
-
-    private static final String REFRESH_TOKEN_KEY = "REFRESH_TOKEN:"; // key prefix
 
     private final AccountRoleService accountRoleService;
 
@@ -96,30 +92,14 @@ public class LoginDefaultServiceImpl implements LoginDefaultService {
         String refreshToken = jwtProvider.generateRefreshToken(username, accountInfoDto.getId(), roles);
 
         // 4. Save refresh token in Redis (with TTL)
-        long refreshTokenTtl = jwtProperties.getRefreshExpiration();
-
         // after getOrCreate deviceId — accountId is resolved from credentials, not from request header
-        String deviceId = deviceService.getAndSaveDeviceId(deviceIdRequest, accountInfoDto.getId());
+        UUID deviceId = deviceService.getAndSaveDeviceId(deviceIdRequest, accountInfoDto.getId());
 
-        // Save refresh token with deviceId
-        String refreshTokenKey = REFRESH_TOKEN_KEY + accountInfoDto.getId() + ":" + deviceId;
-
-        // If already have refresh token for this device, overwrite it
-        redisTemplate.opsForValue().set(
-                refreshTokenKey,
-                refreshToken,
-                refreshTokenTtl,
-                TimeUnit.MILLISECONDS
-        );
-
-        // 5. Save deviceId to set of devices for this account
-        String devicesKey = REFRESH_TOKEN_KEY + "DEVICES:" + accountInfoDto.getId();
-        redisTemplate.opsForSet().add(devicesKey, deviceId);
-        redisTemplate.expire(devicesKey, refreshTokenTtl, TimeUnit.MILLISECONDS);
 
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .deviceId(deviceId)
                 .email(accountInfoDto.getEmail())
                 .roles(roles)
                 .build();

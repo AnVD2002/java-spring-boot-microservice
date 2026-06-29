@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -47,6 +48,7 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
     @Override
     public String authenticateAndFetchProfile(String loginType, String code) {
         try {
+            validateGoogleOAuthConfig();
 
             LoginType type = LoginType.valueOf(loginType.toUpperCase());
 
@@ -101,6 +103,7 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
 
     @Override
     public String generateUrl() {
+        validateGoogleOAuthConfig();
         return UriComponentsBuilder.fromUriString("https://accounts.google.com/o/oauth2/v2/auth")
                 .queryParam("client_id", clientId)
                 .queryParam("redirect_uri", redirectUri)
@@ -108,7 +111,20 @@ public class GoogleOAuth2ServiceImpl implements GoogleOAuth2Service {
                 .queryParam("scope", "openid email profile")
                 .queryParam("access_type", "offline")
                 .build()
+                .encode()
                 .toUriString();
+    }
+
+    private void validateGoogleOAuthConfig() {
+        if (!StringUtils.hasText(clientId)) {
+            throw new SystemException(SystemError.ERROR_500, "Missing Google OAuth client id");
+        }
+        if (!StringUtils.hasText(clientSecret)) {
+            throw new SystemException(SystemError.ERROR_500, "Missing Google OAuth client secret");
+        }
+        if (!StringUtils.hasText(redirectUri)) {
+            throw new SystemException(SystemError.ERROR_500, "Missing Google OAuth redirect uri");
+        }
     }
 
     public GoogleUserInfo getGoogleUserInfo(String accessToken) {

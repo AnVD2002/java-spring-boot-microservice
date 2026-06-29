@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Proposed redesigned schema for auth-service.
+        This file is not included in db/master.xml yet because the current Java entities
+        still match the old schema. Include this only after updating entities/services.
+    -->
+
+    <changeSet id="1-create-accounts-redesigned" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="accounts"/></not>
+        </preConditions>
+        <createTable tableName="accounts">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email_verified_at" type="TIMESTAMP"/>
+            <column name="last_login_at" type="TIMESTAMP"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <createIndex tableName="accounts" indexName="idx_accounts_email">
+            <column name="email"/>
+        </createIndex>
+        <createIndex tableName="accounts" indexName="idx_accounts_username">
+            <column name="username"/>
+        </createIndex>
+        <createIndex tableName="accounts" indexName="idx_accounts_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2-create-roles-redesigned" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="roles"/></not>
+        </preConditions>
+        <createTable tableName="roles">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="is_system" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3-create-permissions" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="permissions"/></not>
+        </preConditions>
+        <createTable tableName="permissions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="scope" type="VARCHAR(50)" defaultValue="GLOBAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <createIndex tableName="permissions" indexName="idx_permissions_module">
+            <column name="module"/>
+        </createIndex>
+        <createIndex tableName="permissions" indexName="idx_permissions_scope">
+            <column name="scope"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="4-create-role-permissions" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="role_permissions"/></not>
+        </preConditions>
+        <createTable tableName="role_permissions">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permission_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="role_permissions" baseColumnNames="role_id"
+                                 referencedTableName="roles" referencedColumnNames="id"
+                                 constraintName="fk_role_permissions_role"/>
+        <addForeignKeyConstraint baseTableName="role_permissions" baseColumnNames="permission_id"
+                                 referencedTableName="permissions" referencedColumnNames="id"
+                                 constraintName="fk_role_permissions_permission"/>
+        <addUniqueConstraint tableName="role_permissions" columnNames="role_id, permission_id"
+                             constraintName="uk_role_permissions_role_permission"/>
+    </changeSet>
+
+    <changeSet id="5-create-account-roles-redesigned" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="account_roles"/></not>
+        </preConditions>
+        <createTable tableName="account_roles">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="account_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="account_roles" baseColumnNames="account_id"
+                                 referencedTableName="accounts" referencedColumnNames="id"
+                                 constraintName="fk_account_roles_account"/>
+        <addForeignKeyConstraint baseTableName="account_roles" baseColumnNames="role_id"
+                                 referencedTableName="roles" referencedColumnNames="id"
+                                 constraintName="fk_account_roles_role"/>
+        <addUniqueConstraint tableName="account_roles" columnNames="account_id, role_id"
+                             constraintName="uk_account_roles_account_role"/>
+    </changeSet>
+
+    <changeSet id="6-create-account-tokens-redesigned" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="account_tokens"/></not>
+        </preConditions>
+        <createTable tableName="account_tokens">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="account_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refresh_token_hash" type="VARCHAR(512)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="provider" type="VARCHAR(50)" defaultValue="LOCAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="issued_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revoked_at" type="TIMESTAMP"/>
+            <column name="is_revoked" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="device_id" type="UUID"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="account_tokens" baseColumnNames="account_id"
+                                 referencedTableName="accounts" referencedColumnNames="id"
+                                 constraintName="fk_account_tokens_account"/>
+        <createIndex tableName="account_tokens" indexName="idx_account_tokens_account_id">
+            <column name="account_id"/>
+        </createIndex>
+        <createIndex tableName="account_tokens" indexName="idx_account_tokens_device_id">
+            <column name="device_id"/>
+        </createIndex>
+        <createIndex tableName="account_tokens" indexName="idx_account_tokens_expires_at">
+            <column name="expires_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="7-create-device-logs" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="device_logs"/></not>
+        </preConditions>
+        <createTable tableName="device_logs">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="account_id" type="UUID"/>
+            <column name="device_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="device_name" type="VARCHAR(255)"/>
+            <column name="ip_address" type="VARCHAR(45)"/>
+            <column name="user_agent" type="VARCHAR(1000)"/>
+            <column name="first_seen_at" type="TIMESTAMP"/>
+            <column name="last_seen_at" type="TIMESTAMP"/>
+            <column name="status" type="INT"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="device_logs" baseColumnNames="account_id"
+                                 referencedTableName="accounts" referencedColumnNames="id"
+                                 constraintName="fk_device_logs_account"/>
+        <createIndex tableName="device_logs" indexName="idx_device_logs_account_id">
+            <column name="account_id"/>
+        </createIndex>
+        <createIndex tableName="device_logs" indexName="idx_device_logs_device_id">
+            <column name="device_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="8-create-login-audit-logs" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="login_audit_logs"/></not>
+        </preConditions>
+        <createTable tableName="login_audit_logs">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="account_id" type="UUID"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="provider" type="VARCHAR(50)"/>
+            <column name="success" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="failure_reason" type="VARCHAR(500)"/>
+            <column name="ip_address" type="VARCHAR(45)"/>
+            <column name="user_agent" type="VARCHAR(1000)"/>
+            <column name="logged_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="login_audit_logs" baseColumnNames="account_id"
+                                 referencedTableName="accounts" referencedColumnNames="id"
+                                 constraintName="fk_login_audit_logs_account"/>
+    </changeSet>
+
+    <changeSet id="9-create-password-reset-tokens" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="password_reset_tokens"/></not>
+        </preConditions>
+        <createTable tableName="password_reset_tokens">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="account_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token_hash" type="VARCHAR(512)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="used_at" type="TIMESTAMP"/>
+            <column name="requested_ip" type="VARCHAR(45)"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="password_reset_tokens" baseColumnNames="account_id"
+                                 referencedTableName="accounts" referencedColumnNames="id"
+                                 constraintName="fk_password_reset_tokens_account"/>
+    </changeSet>
+
+    <changeSet id="10-seed-auth-roles" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM roles WHERE code IN ('ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'CONTENT_MANAGER')</sqlCheck>
+        </preConditions>
+        <insert tableName="roles">
+            <column name="code" value="ADMIN"/>
+            <column name="name" value="Administrator"/>
+            <column name="description" value="Full system administrator"/>
+            <column name="is_system" valueBoolean="true"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="code" value="TEACHER"/>
+            <column name="name" value="Teacher"/>
+            <column name="description" value="Teacher role"/>
+            <column name="is_system" valueBoolean="true"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="code" value="STUDENT"/>
+            <column name="name" value="Student"/>
+            <column name="description" value="Student role"/>
+            <column name="is_system" valueBoolean="true"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="code" value="PARENT"/>
+            <column name="name" value="Parent"/>
+            <column name="description" value="Parent or guardian role"/>
+            <column name="is_system" valueBoolean="true"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="code" value="CONTENT_MANAGER"/>
+            <column name="name" value="Content Manager"/>
+            <column name="description" value="Manages learning content"/>
+            <column name="is_system" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="11-seed-auth-permissions" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM permissions</sqlCheck>
+        </preConditions>
+        <insert tableName="permissions">
+            <column name="code" value="USER_VIEW"/>
+            <column name="name" value="View users"/>
+            <column name="module" value="USER"/>
+            <column name="scope" value="GLOBAL"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="code" value="USER_MANAGE"/>
+            <column name="name" value="Manage users"/>
+            <column name="module" value="USER"/>
+            <column name="scope" value="GLOBAL"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="code" value="COURSE_CREATE"/>
+            <column name="name" value="Create courses"/>
+            <column name="module" value="COURSE"/>
+            <column name="scope" value="COURSE"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="code" value="COURSE_UPDATE"/>
+            <column name="name" value="Update courses"/>
+            <column name="module" value="COURSE"/>
+            <column name="scope" value="COURSE"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="code" value="LESSON_VIEW"/>
+            <column name="name" value="View lessons"/>
+            <column name="module" value="LESSON"/>
+            <column name="scope" value="LESSON"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="code" value="QUIZ_GRADE"/>
+            <column name="name" value="Grade quizzes"/>
+            <column name="module" value="QUIZ"/>
+            <column name="scope" value="QUIZ"/>
+        </insert>
+        <insert tableName="permissions">
+            <column name="code" value="REPORT_VIEW"/>
+            <column name="name" value="View reports"/>
+            <column name="module" value="REPORT"/>
+            <column name="scope" value="REPORT"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

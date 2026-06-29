@@ -39,6 +39,7 @@ public class SecurityConfigAuthService {
                         "/api/v1/auth/refresh",
                         "/api/v1/auth/logout",
                         "/api/v1/auth/normal/register",
+                        "/api/v1/auth/normal/confirm",
                         "/api/v1/auth/google/url",
                         "/api/v1/auth/google/callback",
                         "/api/v1/auth/google/login",
@@ -46,7 +47,10 @@ public class SecurityConfigAuthService {
                         "/api/v1/auth/forgot-password",
                         "/api/v1/auth/verify-otp",
                         "/api/v1/auth/reset-password",
-                        "/api/v1/test/public"
+                        "/api/v1/test/public",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html"
                 )
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(AbstractHttpConfigurer::disable);

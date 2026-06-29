@@ -3,26 +3,37 @@ package com.project.auth_service.service.auth.impl;
 import com.project.auth_service.config.OtpTopicProperties;
 import com.project.auth_service.dto.request.AccountRegistrationRequest;
 import com.project.auth_service.dto.request.AccountRegistrationRequestNormal;
+import com.project.auth_service.dto.request.ConfirmRegistrationRequest;
 import com.project.auth_service.dto.response.GoogleUserInfo;
 import com.project.auth_service.entity.Account;
+import com.project.auth_service.enums.AccountStatus;
 import com.project.auth_service.kafka.producer.RegistrationEmailConfirmedEvent;
 import com.project.auth_service.service.AccountRoleService;
 import com.project.auth_service.service.AccountService;
 import com.project.auth_service.service.auth.RegisterAccountService;
 import com.project.auth_service.service.provider.GoogleOAuth2Service;
+import com.project.common_lib_service.exception.AuthenticationError;
 import com.project.common_lib_service.exception.SystemError;
 import com.project.common_lib_service.exception.SystemException;
+import com.project.common_lib_service.service.AuditLogService;
 import com.project.common_lib_service.service.KafkaProducerService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.project.auth_service.utils.SystemUtils.generateOtp;
+import static com.project.auth_service.enums.AuditAction.CREATE;
+import static com.project.auth_service.enums.AuditAction.UPDATE;
+import static com.project.auth_service.enums.AuditEntityType.ACCOUNT;
 
 @Slf4j
 @Service
@@ -40,6 +51,12 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
     private final OtpTopicProperties otpTopicProperties;
 
     private final KafkaProducerService KafkaProducerService;
+
+    private final StringRedisTemplate redisTemplate;
+    private final AuditLogService auditLogService;
+
+    private static final String REGISTRATION_OTP_KEY_PREFIX = "REGISTRATION_OTP:";
+    private static final long REGISTRATION_OTP_TTL_MINUTES = 15;
 
     /**
      * Register a new account using Google OAuth2 information.
@@ -65,7 +82,7 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
         String email = googleUserInfo.getEmail();
 
         // 2. Check if the email already exists in the system
-        Optional<Account> accountExisted = accountService.getAccountExistedByEmail(email);
+        Optional<Account> accountExisted = accountService.getAnyNonDeletedAccountByEmail(email);
         if (accountExisted.isPresent()) {
             throw new SystemException(SystemError.ERROR_028); // Email already registered
         }
@@ -80,11 +97,12 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
                 .email(email)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .username(request.getUsername())
-                .status(1) // 1 = active
+                .status(AccountStatus.ACTIVE.getValue())
                 .build();
 
-        accountService.saveAccount(account);
+        account = accountService.saveAccount(account);
         accountRoleService.assignDefaultRole(account);
+        auditLogService.record(CREATE, ACCOUNT, account.getId(), null, accountSnapshot(account));
 
         return account;
 
@@ -93,7 +111,7 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
     @Transactional
     public Account registerAccountNormal(AccountRegistrationRequestNormal request) {
         // 1. Check if the email already exists in the system
-        Optional<Account> accountExisted = accountService.getAccountExistedByEmail(request.getEmail());
+        Optional<Account> accountExisted = accountService.getAnyNonDeletedAccountByEmail(request.getEmail());
         if (accountExisted.isPresent()) {
             throw new SystemException(SystemError.ERROR_028); // Email already registered
         }
@@ -108,13 +126,20 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .username(request.getUsername())
-                .status(1)
+                .status(AccountStatus.PENDING_EMAIL_VERIFICATION.getValue())
                 .build();
 
-        accountService.saveAccount(account);
+        account = accountService.saveAccount(account);
         accountRoleService.assignDefaultRole(account);
+        auditLogService.record(CREATE, ACCOUNT, account.getId(), null, accountSnapshot(account));
 
         String otp = generateOtp();
+        redisTemplate.opsForValue().set(
+                REGISTRATION_OTP_KEY_PREFIX + request.getEmail(),
+                otp,
+                REGISTRATION_OTP_TTL_MINUTES,
+                TimeUnit.MINUTES
+        );
 
         RegistrationEmailConfirmedEvent event = RegistrationEmailConfirmedEvent.builder()
                 .email(request.getEmail())
@@ -129,6 +154,43 @@ public class RegisterAccountServiceImpl implements RegisterAccountService {
 
         return account;
 
+    }
+
+    @Transactional
+    public Account confirmNormalRegistration(ConfirmRegistrationRequest request) {
+        String otpKey = REGISTRATION_OTP_KEY_PREFIX + request.getEmail();
+        String storedOtp = redisTemplate.opsForValue().get(otpKey);
+        if (storedOtp == null || !storedOtp.equals(request.getOtp())) {
+            throw new SystemException(AuthenticationError.AUTH_005);
+        }
+
+        Account account = accountService.getAnyNonDeletedAccountByEmail(request.getEmail())
+                .orElseThrow(() -> new SystemException(SystemError.ERROR_010));
+
+        if (!AccountStatus.PENDING_EMAIL_VERIFICATION.equals(AccountStatus.fromValue(account.getStatus()))) {
+            throw new SystemException(SystemError.ERROR_021);
+        }
+
+        account.setStatus(AccountStatus.ACTIVE.getValue());
+        Account saved = accountService.saveAccount(account);
+        auditLogService.record(
+                UPDATE,
+                ACCOUNT,
+                saved.getId(),
+                Map.of("status", AccountStatus.PENDING_EMAIL_VERIFICATION.getValue()),
+                accountSnapshot(saved)
+        );
+        redisTemplate.delete(otpKey);
+        return saved;
+    }
+
+    private Map<String, Object> accountSnapshot(Account account) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("id", account.getId());
+        data.put("email", account.getEmail());
+        data.put("username", account.getUsername());
+        data.put("status", account.getStatus());
+        return data;
     }
 
 }

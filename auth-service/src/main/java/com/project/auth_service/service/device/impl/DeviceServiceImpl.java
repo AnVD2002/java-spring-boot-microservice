@@ -2,6 +2,7 @@ package com.project.auth_service.service.device.impl;
 
 import com.project.auth_service.config.DeviceProperties;
 import com.project.auth_service.entity.DeviceLog;
+import com.project.auth_service.enums.DeviceStatus;
 import com.project.auth_service.repository.DeviceLogRepository;
 import com.project.auth_service.service.device.DeviceService;
 import com.project.common_lib_service.exception.AuthenticationError;
@@ -26,19 +27,20 @@ public class DeviceServiceImpl implements DeviceService {
      *
      * @param deviceId
      * @param accountId
-     * @return
      */
-    public String getAndSaveDeviceId(String deviceId, UUID accountId) {
+    public UUID getAndSaveDeviceId(String deviceId, UUID accountId) {
 
         // Known device: client sent a deviceId it previously received
         if (StringUtils.hasText(deviceId)) {
-            DeviceLog existing = deviceLogRepository.findByDeviceIdAndUserId(UUID.fromString(deviceId), accountId)
-                    .orElse(null);
+            UUID parsedDeviceId = parseDeviceId(deviceId);
+            DeviceLog existing = parsedDeviceId == null ? null :
+                    deviceLogRepository.findByDeviceIdAndUserId(parsedDeviceId, accountId).orElse(null);
 
             if (existing != null) {
                 existing.setLastSeenAt(LocalDateTime.now());
+                existing.setStatus(DeviceStatus.ACTIVE.getValue());
                 deviceLogRepository.save(existing);
-                return existing.getDeviceId().toString();
+                return existing.getDeviceId();
             }
         }
 
@@ -54,9 +56,18 @@ public class DeviceServiceImpl implements DeviceService {
                 .deviceId(newDeviceId)
                 .firstSeenAt(LocalDateTime.now())
                 .lastSeenAt(LocalDateTime.now())
+                .status(DeviceStatus.ACTIVE.getValue())
                 .build();
 
         deviceLogRepository.save(newDeviceLog);
-        return newDeviceId.toString();
+        return newDeviceId;
+    }
+
+    private UUID parseDeviceId(String deviceId) {
+        try {
+            return UUID.fromString(deviceId);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 }

@@ -11,6 +11,18 @@ import java.util.UUID;
 @Repository
 public interface AccountRoleRepository extends JpaRepository<AccountRole, UUID> {
 
+    List<AccountRole> findByAccountId(UUID accountId);
+
+    void deleteByAccountId(UUID accountId);
+
+    @Query("""
+            select r
+            from AccountRole ar
+            join Role r on r.id = ar.roleId
+            where ar.accountId = :accountId
+            """)
+    List<com.project.auth_service.entity.Role> findRolesByAccountId(UUID accountId);
+
     @Query(value = "select r.name from Account a " +
             "inner join AccountRole ar on ar.accountId = a.id " +
             "inner join Role r on r.id =ar.roleId " +

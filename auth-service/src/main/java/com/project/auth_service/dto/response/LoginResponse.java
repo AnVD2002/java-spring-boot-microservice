@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -14,6 +15,7 @@ import java.util.List;
 public class LoginResponse {
     String accessToken;
     String refreshToken;
+    UUID deviceId;
     String username;
     String email;
     List<String> roles;

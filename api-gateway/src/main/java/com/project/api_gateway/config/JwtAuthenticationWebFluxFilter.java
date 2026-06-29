@@ -40,6 +40,11 @@ public class JwtAuthenticationWebFluxFilter implements WebFilter {
     @Override
     @NonNull
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
+        String path = exchange.getRequest().getPath().value();
+        if (isPublicPath(path)) {
+            return chain.filter(exchange);
+        }
+
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -91,6 +96,26 @@ public class JwtAuthenticationWebFluxFilter implements WebFilter {
         } catch (Exception e) {
             return unauthorized(exchange, "Invalid token");
         }
+    }
+
+    private boolean isPublicPath(String path) {
+        return path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/webjars")
+                || path.equals("/swagger-ui.html")
+                || path.startsWith("/api/v1/auth/login/")
+                || path.equals("/api/v1/auth/refresh")
+                || path.equals("/api/v1/auth/logout")
+                || path.equals("/api/v1/auth/normal/register")
+                || path.equals("/api/v1/auth/normal/confirm")
+                || path.equals("/api/v1/auth/google/url")
+                || path.equals("/api/v1/auth/google/callback")
+                || path.equals("/api/v1/auth/google/login")
+                || path.equals("/api/v1/auth/google/register")
+                || path.equals("/api/v1/auth/forgot-password")
+                || path.equals("/api/v1/auth/verify-otp")
+                || path.equals("/api/v1/auth/reset-password")
+                || path.equals("/api/v1/test/public");
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {

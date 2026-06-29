@@ -29,6 +29,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Optional<Account> getAnyNonDeletedAccountByEmail(String email) {
+        return accountRepository.findAnyNonDeletedByEmail(email);
+    }
+
+    @Override
     public AccountInfoDto getAccountInfoDtoByUsername(String username) {
         return accountRepository.getAccountInfoDtoByUsername(username);
     }
@@ -44,7 +49,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void saveAccount(Account account) {
-        accountRepository.save(account);
+    public Account saveAccount(Account account) {
+        return accountRepository.save(account);
     }
 }

@@ -4,5 +4,5 @@ import com.project.auth_service.dto.request.LoginGoogleRequest;
 import com.project.auth_service.dto.response.LoginResponse;
 
 public interface LoginOAuth2Service {
-    LoginResponse loginOauth2(LoginGoogleRequest loginGoogleRequest);
+    LoginResponse loginOauth2(LoginGoogleRequest loginGoogleRequest, String deviceId);
 }

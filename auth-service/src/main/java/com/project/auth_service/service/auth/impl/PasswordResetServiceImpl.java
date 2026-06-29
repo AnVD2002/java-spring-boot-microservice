@@ -10,7 +10,10 @@ import com.project.auth_service.service.AccountService;
 import com.project.auth_service.service.auth.PasswordResetService;
 import com.project.common_lib_service.event.PasswordResetEmailEvent;
 import com.project.common_lib_service.exception.AuthenticationError;
+import com.project.common_lib_service.exception.SystemError;
 import com.project.common_lib_service.exception.SystemException;
+import com.project.common_lib_service.repository.RefreshTokenRepository;
+import com.project.common_lib_service.service.AuditLogService;
 import com.project.common_lib_service.service.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.project.auth_service.utils.SystemUtils.generateOtp;
+import static com.project.auth_service.enums.AuditAction.UPDATE;
+import static com.project.auth_service.enums.AuditEntityType.ACCOUNT_PASSWORD;
 
 @Slf4j
 @Service
@@ -34,6 +39,8 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     private final KafkaProducerService kafkaProducerService;
     private final OtpTopicProperties otpTopicProperties;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final AuditLogService auditLogService;
 
     private static final String OTP_KEY_PREFIX = "OTP:";
     private static final String OTP_ATTEMPT_PREFIX = "OTP_ATTEMPT:";
@@ -111,10 +118,22 @@ public class PasswordResetServiceImpl implements PasswordResetService {
             throw new SystemException(AuthenticationError.AUTH_006);
         }
 
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new SystemException(SystemError.ERROR_027);
+        }
+
         Account account = accountService.getAccountByEmail(email);
         account.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        accountService.saveAccount(account);
+        Account saved = accountService.saveAccount(account);
+        auditLogService.record(
+                UPDATE,
+                ACCOUNT_PASSWORD,
+                saved.getId(),
+                null,
+                java.util.Map.of("passwordChanged", true)
+        );
 
+        refreshTokenRepository.deleteAllByAccountId(account.getId());
         redisTemplate.delete(tokenKey);
     }
 }

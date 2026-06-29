@@ -12,11 +12,13 @@ public interface AccountService {
 
     Optional<Account> getAccountExistedByEmail(String email);
 
+    Optional<Account> getAnyNonDeletedAccountByEmail(String email);
+
     AccountInfoDto getAccountInfoDtoByUsername(String username);
 
     AccountInfoDto getAccountInfoDtoByEmail(String email);
 
     void deleteAccountById(UUID id);
 
-    void saveAccount(Account account);
+    Account saveAccount(Account account);
 }

@@ -33,9 +33,11 @@ public class SecurityConfigUser {
             HttpSecurity http,
             DefaultAuthenticationEntryPoint entryPoint
     ) throws Exception {
-        http.securityMatcher("/api/v1/users/**");
+        http.securityMatcher("/api/v1/users/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html");
         BaseSecurityConfig.applyCommon(http, entryPoint, internalSecret);
-        http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .anyRequest().authenticated());
         return http.build();
     }
 }

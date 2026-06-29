@@ -8,5 +8,8 @@
 
     <!-- Import các file init -->
     <include file="db/changelog/000000_initial_schema_auth_service.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/000002_admin_permission_schema_auth_service.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/000003_screen_authorization_schema_auth_service.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/000004_audit_log_auth_service.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

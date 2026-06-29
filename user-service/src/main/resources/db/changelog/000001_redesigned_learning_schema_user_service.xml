@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Proposed redesigned schema for user-service.
+        This file is not included in db/master.xml yet because the current Java entities
+        still match the old schema. Include this only after updating entities/services.
+
+        Status convention proposal:
+        0 = pending/inactive/invited
+        1 = active
+        2 = suspended
+        3 = completed
+        4 = removed/deleted
+    -->
+
+    <changeSet id="1-create-users-redesigned" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="users"/></not>
+        </preConditions>
+        <createTable tableName="users">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="account_id" type="UUID">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="username" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="user_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="display_name" type="VARCHAR(255)"/>
+            <column name="avatar_url" type="VARCHAR(1000)"/>
+            <column name="phone_number" type="VARCHAR(20)"/>
+            <column name="address" type="VARCHAR(500)"/>
+            <column name="status" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <createIndex tableName="users" indexName="idx_users_account_id" unique="true">
+            <column name="account_id"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_users_email">
+            <column name="email"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_users_username">
+            <column name="username"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_users_user_type">
+            <column name="user_type"/>
+        </createIndex>
+        <createIndex tableName="users" indexName="idx_users_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2-create-student-profiles" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="student_profiles"/></not>
+        </preConditions>
+        <createTable tableName="student_profiles">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="student_code" type="VARCHAR(100)">
+                <constraints unique="true"/>
+            </column>
+            <column name="date_of_birth" type="DATE"/>
+            <column name="grade_level" type="VARCHAR(50)"/>
+            <column name="guardian_name" type="VARCHAR(255)"/>
+            <column name="guardian_phone" type="VARCHAR(20)"/>
+            <column name="guardian_email" type="VARCHAR(255)"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="student_profiles" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_student_profiles_user"/>
+    </changeSet>
+
+    <changeSet id="3-create-teacher-profiles" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="teacher_profiles"/></not>
+        </preConditions>
+        <createTable tableName="teacher_profiles">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="teacher_code" type="VARCHAR(100)">
+                <constraints unique="true"/>
+            </column>
+            <column name="department" type="VARCHAR(255)"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="bio" type="TEXT"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="teacher_profiles" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_teacher_profiles_user"/>
+    </changeSet>
+
+    <changeSet id="4-create-organizations" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="organizations"/></not>
+        </preConditions>
+        <createTable tableName="organizations">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(100)"/>
+            <column name="status" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="5-create-classes" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="classes"/></not>
+        </preConditions>
+        <createTable tableName="classes">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="organization_id" type="UUID"/>
+            <column name="code" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grade_level" type="VARCHAR(50)"/>
+            <column name="academic_year" type="VARCHAR(20)"/>
+            <column name="status" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="classes" baseColumnNames="organization_id"
+                                 referencedTableName="organizations" referencedColumnNames="id"
+                                 constraintName="fk_classes_organization"/>
+        <createIndex tableName="classes" indexName="idx_classes_organization_id">
+            <column name="organization_id"/>
+        </createIndex>
+        <createIndex tableName="classes" indexName="idx_classes_academic_year">
+            <column name="academic_year"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="6-create-class-members" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="class_members"/></not>
+        </preConditions>
+        <createTable tableName="class_members">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="class_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="member_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="joined_at" type="TIMESTAMP"/>
+            <column name="left_at" type="TIMESTAMP"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="class_members" baseColumnNames="class_id"
+                                 referencedTableName="classes" referencedColumnNames="id"
+                                 constraintName="fk_class_members_class"/>
+        <addForeignKeyConstraint baseTableName="class_members" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_class_members_user"/>
+        <addUniqueConstraint tableName="class_members" columnNames="class_id, user_id"
+                             constraintName="uk_class_members_class_user"/>
+        <createIndex tableName="class_members" indexName="idx_class_members_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="class_members" indexName="idx_class_members_member_type">
+            <column name="member_type"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="7-create-learning-memberships" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="learning_memberships"/></not>
+        </preConditions>
+        <createTable tableName="learning_memberships">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="member_type" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="joined_at" type="TIMESTAMP"/>
+            <column name="completed_at" type="TIMESTAMP"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="learning_memberships" baseColumnNames="user_id"
+                                 referencedTableName="users" referencedColumnNames="id"
+                                 constraintName="fk_learning_memberships_user"/>
+        <addUniqueConstraint tableName="learning_memberships" columnNames="context_type, context_id, user_id"
+                             constraintName="uk_learning_memberships_context_user"/>
+        <createIndex tableName="learning_memberships" indexName="idx_learning_memberships_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="learning_memberships" indexName="idx_learning_memberships_member_type">
+            <column name="member_type"/>
+        </createIndex>
+        <createIndex tableName="learning_memberships" indexName="idx_learning_memberships_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
