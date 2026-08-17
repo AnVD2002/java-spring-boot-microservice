@@ -7,6 +7,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import java.util.TimeZone;
+
 @SpringBootApplication()
 @EntityScan(basePackages = {"com.project.auth_service.entity", "com.project.common_lib_service.entity"})
 @EnableJpaRepositories(basePackages = {"com.project.auth_service.repository", "com.project.common_lib_service.repository"})
@@ -32,6 +34,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class AuthServiceApplication {
 
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         SpringApplication.run(AuthServiceApplication.class, args);
     }
 

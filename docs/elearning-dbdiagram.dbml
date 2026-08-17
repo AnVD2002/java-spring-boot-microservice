@@ -1,0 +1,184 @@
+// Elearning service database design
+// Paste this file into https://dbdiagram.io for review.
+//
+// Boundary:
+// - elearning-service owns courses, modules, lessons, enrollments and progress.
+// - documents-service owns document file metadata. elearning-service stores document_id + document_version only.
+// - user-service owns learner/instructor profile data. elearning-service stores learner_id/instructor_id only.
+
+Table courses {
+  id uuid [pk, default: `gen_random_uuid()`]
+  code varchar(100) [unique, note: 'Optional business code, e.g. JAVA-BASIC']
+  title varchar(255) [not null]
+  short_description varchar(500)
+  description text
+  thumbnail_url varchar(1000)
+  level varchar(50) [note: 'BEGINNER, INTERMEDIATE, ADVANCED']
+  language varchar(20) [default: 'vi']
+  status int [not null, note: '0=draft, 1=active, 2=published, 3=archived, 4=deleted']
+  instructor_id uuid [not null, note: 'External user-service user id']
+  published_at timestamp
+
+  inserted_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  inserted_by uuid
+  updated_by uuid
+  deleted_by uuid
+
+  indexes {
+    instructor_id [name: 'idx_courses_instructor_id']
+    status [name: 'idx_courses_status']
+  }
+}
+
+Table course_modules {
+  id uuid [pk, default: `gen_random_uuid()`]
+  course_id uuid [not null]
+  title varchar(255) [not null]
+  description text
+  order_index int [not null, default: 0]
+  status int [not null, default: 1, note: '0=draft, 1=active, 3=archived, 4=deleted']
+
+  inserted_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  inserted_by uuid
+  updated_by uuid
+  deleted_by uuid
+
+  indexes {
+    (course_id, order_index) [unique, name: 'uk_course_modules_course_order']
+    course_id [name: 'idx_course_modules_course_id']
+    status [name: 'idx_course_modules_status']
+  }
+}
+
+Table lessons {
+  id uuid [pk, default: `gen_random_uuid()`]
+  course_id uuid [not null]
+  module_id uuid
+  title varchar(255) [not null]
+  summary text
+  lesson_type varchar(50) [not null, default: 'DOCUMENT', note: 'DOCUMENT, VIDEO, MIXED, LIVE, ASSIGNMENT']
+  content_url varchar(1000) [note: 'Legacy/simple content URL. Prefer lesson_documents.document_id for new flow']
+  order_index int [not null, default: 0]
+  duration_minutes int [default: 0]
+  is_preview boolean [not null, default: false]
+  status int [not null, note: '0=draft, 1=active, 2=published, 3=archived, 4=deleted']
+
+  inserted_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  inserted_by uuid
+  updated_by uuid
+  deleted_by uuid
+
+  indexes {
+    course_id [name: 'idx_lessons_course_id']
+    module_id [name: 'idx_lessons_module_id']
+    status [name: 'idx_lessons_status']
+  }
+}
+
+Table lesson_documents {
+  id uuid [pk, default: `gen_random_uuid()`]
+  lesson_id uuid [not null]
+  document_id uuid [not null, note: 'External documents-service document id']
+  document_version int [not null, default: 1]
+  title varchar(255) [note: 'Snapshot/display title at time of attach']
+  document_type varchar(50) [note: 'PDF, VIDEO, SLIDE, IMAGE, LINK, OTHER']
+  is_required boolean [not null, default: true]
+  display_order int [not null, default: 0]
+  status int [not null, default: 1, note: '0=draft, 1=active, 3=archived, 4=deleted']
+
+  inserted_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  inserted_by uuid
+  updated_by uuid
+  deleted_by uuid
+
+  indexes {
+    (lesson_id, document_id, document_version) [unique, name: 'uk_lesson_documents_lesson_document_version']
+    lesson_id [name: 'idx_lesson_documents_lesson_id']
+    document_id [name: 'idx_lesson_documents_document_id']
+    status [name: 'idx_lesson_documents_status']
+  }
+}
+
+Table course_enrollments {
+  id uuid [pk, default: `gen_random_uuid()`]
+  course_id uuid [not null]
+  learner_id uuid [not null, note: 'External user-service user id']
+  status int [not null, default: 0, note: '0=enrolled, 1=in_progress, 2=completed, 3=cancelled']
+  progress_percent decimal(5,2) [not null, default: 0]
+  enrolled_at timestamp [not null]
+  started_at timestamp
+  completed_at timestamp
+
+  inserted_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  inserted_by uuid
+  updated_by uuid
+  deleted_by uuid
+
+  indexes {
+    (course_id, learner_id) [unique, name: 'uk_course_enrollments_course_learner']
+    course_id [name: 'idx_course_enrollments_course_id']
+    learner_id [name: 'idx_course_enrollments_learner_id']
+    status [name: 'idx_course_enrollments_status']
+  }
+}
+
+Table lesson_progress {
+  id uuid [pk, default: `gen_random_uuid()`]
+  enrollment_id uuid [not null]
+  lesson_id uuid [not null]
+  learner_id uuid [not null, note: 'Duplicated for query speed; must match course_enrollments.learner_id at service layer']
+  status int [not null, default: 0, note: '0=not_started, 1=in_progress, 2=completed']
+  progress_percent decimal(5,2) [not null, default: 0]
+  last_position_seconds int [not null, default: 0, note: 'Useful for video/audio lessons']
+  time_spent_seconds int [not null, default: 0]
+  started_at timestamp
+  completed_at timestamp
+  last_accessed_at timestamp
+
+  inserted_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  inserted_by uuid
+  updated_by uuid
+  deleted_by uuid
+
+  indexes {
+    (enrollment_id, lesson_id) [unique, name: 'uk_lesson_progress_enrollment_lesson']
+    learner_id [name: 'idx_lesson_progress_learner_id']
+    status [name: 'idx_lesson_progress_status']
+  }
+}
+
+// External tables are shown only for context. Do not create foreign keys to them from elearning_db.
+Table external_users {
+  id uuid [pk, note: 'Owned by user-service']
+}
+
+Table external_documents {
+  id uuid [pk, note: 'Owned by documents-service']
+  version int
+}
+
+Ref: courses.id < course_modules.course_id
+Ref: courses.id < lessons.course_id
+Ref: course_modules.id < lessons.module_id
+Ref: lessons.id < lesson_documents.lesson_id
+Ref: courses.id < course_enrollments.course_id
+Ref: course_enrollments.id < lesson_progress.enrollment_id
+Ref: lessons.id < lesson_progress.lesson_id
+
+// Logical references only, no DB-level foreign keys:
+// Ref: external_users.id < courses.instructor_id
+// Ref: external_users.id < course_enrollments.learner_id
+// Ref: external_users.id < lesson_progress.learner_id
+// Ref: external_documents.id < lesson_documents.document_id

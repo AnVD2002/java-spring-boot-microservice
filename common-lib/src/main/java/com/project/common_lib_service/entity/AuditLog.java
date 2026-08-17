@@ -9,7 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -42,9 +44,11 @@ public class AuditLog {
     @Column(name = "actor_username")
     private String actorUsername;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "old_data", columnDefinition = "jsonb")
     private String oldData;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "new_data", columnDefinition = "jsonb")
     private String newData;
 

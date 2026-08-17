@@ -22,8 +22,17 @@ public class Lesson extends BaseEntity {
     @Column(name = "course_id", nullable = false)
     private UUID courseId;
 
+    @Column(name = "module_id")
+    private UUID moduleId;
+
     @Column(nullable = false)
     private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+
+    @Column(name = "lesson_type", nullable = false, length = 50)
+    private String lessonType;
 
     @Column(name = "content_url", length = 1000)
     private String contentUrl;
@@ -33,6 +42,9 @@ public class Lesson extends BaseEntity {
 
     @Column(name = "duration_minutes")
     private Integer durationMinutes;
+
+    @Column(name = "is_preview", nullable = false)
+    private Boolean isPreview;
 
     @Column(nullable = false)
     private Integer status;

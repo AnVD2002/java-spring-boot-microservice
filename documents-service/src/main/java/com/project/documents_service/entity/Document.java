@@ -31,8 +31,26 @@ public class Document extends BaseEntity {
     @Column(name = "file_type", length = 50)
     private String fileType;
 
+    @Column(name = "storage_provider", nullable = false, length = 50)
+    private String storageProvider;
+
+    @Column(name = "storage_key", length = 1000)
+    private String storageKey;
+
+    @Column(name = "original_file_name")
+    private String originalFileName;
+
+    @Column(name = "mime_type")
+    private String mimeType;
+
     @Column(name = "file_size")
     private Long fileSize;
+
+    @Column(name = "checksum", length = 128)
+    private String checksum;
+
+    @Column(nullable = false)
+    private Integer version;
 
     @Column(nullable = false)
     private Integer status;

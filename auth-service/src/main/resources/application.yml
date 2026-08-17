@@ -8,7 +8,7 @@ spring:
       port: ${REDIS_PORT:6379}
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/auth_db
+    url: jdbc:postgresql://localhost:5432/auth_db?TimeZone=Asia/Ho_Chi_Minh
     username: postgres
     password: ${DB_PASSWORD:Haibabon@234}
     driver-class-name: org.postgresql.Driver

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1-add-course-metadata" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="courses"/>
+                <not><columnExists tableName="courses" columnName="code"/></not>
+            </and>
+        </preConditions>
+        <addColumn tableName="courses">
+            <column name="code" type="VARCHAR(100)"/>
+            <column name="short_description" type="VARCHAR(500)"/>
+            <column name="level" type="VARCHAR(50)"/>
+            <column name="language" type="VARCHAR(20)" defaultValue="vi"/>
+            <column name="published_at" type="TIMESTAMP"/>
+        </addColumn>
+        <addUniqueConstraint tableName="courses" columnNames="code" constraintName="uk_courses_code"/>
+        <createIndex tableName="courses" indexName="idx_courses_instructor_id">
+            <column name="instructor_id"/>
+        </createIndex>
+        <createIndex tableName="courses" indexName="idx_courses_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2-create-course-modules" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="course_modules"/></not>
+        </preConditions>
+        <createTable tableName="course_modules">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="course_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="order_index" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="course_modules" baseColumnNames="course_id"
+                                 referencedTableName="courses" referencedColumnNames="id"
+                                 constraintName="fk_course_modules_course"/>
+        <addUniqueConstraint tableName="course_modules" columnNames="course_id, order_index"
+                             constraintName="uk_course_modules_course_order"/>
+        <createIndex tableName="course_modules" indexName="idx_course_modules_course_id">
+            <column name="course_id"/>
+        </createIndex>
+        <createIndex tableName="course_modules" indexName="idx_course_modules_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="3-add-lesson-learning-fields" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="lessons"/>
+                <not><columnExists tableName="lessons" columnName="module_id"/></not>
+            </and>
+        </preConditions>
+        <addColumn tableName="lessons">
+            <column name="module_id" type="UUID"/>
+            <column name="lesson_type" type="VARCHAR(50)" defaultValue="DOCUMENT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="summary" type="TEXT"/>
+            <column name="is_preview" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <addForeignKeyConstraint baseTableName="lessons" baseColumnNames="module_id"
+                                 referencedTableName="course_modules" referencedColumnNames="id"
+                                 constraintName="fk_lessons_module"/>
+        <createIndex tableName="lessons" indexName="idx_lessons_course_id">
+            <column name="course_id"/>
+        </createIndex>
+        <createIndex tableName="lessons" indexName="idx_lessons_module_id">
+            <column name="module_id"/>
+        </createIndex>
+        <createIndex tableName="lessons" indexName="idx_lessons_status">
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="4-create-lesson-documents" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="lesson_documents"/></not>
+        </preConditions>
+        <createTable tableName="lesson_documents">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="lesson_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="document_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="document_version" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="document_type" type="VARCHAR(50)"/>
+            <column name="is_required" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="display_order" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="lesson_documents" baseColumnNames="lesson_id"
+                                 referencedTableName="lessons" referencedColumnNames="id"
+                                 constraintName="fk_lesson_documents_lesson"/>
+        <addUniqueConstraint tableName="lesson_documents" columnNames="lesson_id, document_id, document_version"
+                             constraintName="uk_lesson_documents_lesson_document_version"/>
+        <createIndex tableName="lesson_documents" indexName="idx_lesson_documents_lesson_id">
+            <column name="lesson_id"/>
+        </createIndex>
+        <createIndex tableName="lesson_documents" indexName="idx_lesson_documents_document_id">
+            <column name="document_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="5-create-course-enrollments" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="course_enrollments"/></not>
+        </preConditions>
+        <createTable tableName="course_enrollments">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="course_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="learner_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="progress_percent" type="DECIMAL(5,2)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enrolled_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="started_at" type="TIMESTAMP"/>
+            <column name="completed_at" type="TIMESTAMP"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="course_enrollments" baseColumnNames="course_id"
+                                 referencedTableName="courses" referencedColumnNames="id"
+                                 constraintName="fk_course_enrollments_course"/>
+        <addUniqueConstraint tableName="course_enrollments" columnNames="course_id, learner_id"
+                             constraintName="uk_course_enrollments_course_learner"/>
+        <createIndex tableName="course_enrollments" indexName="idx_course_enrollments_learner_id">
+            <column name="learner_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="6-create-lesson-progress" author="codex">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="lesson_progress"/></not>
+        </preConditions>
+        <createTable tableName="lesson_progress">
+            <column name="id" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="enrollment_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lesson_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="learner_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="progress_percent" type="DECIMAL(5,2)" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_position_seconds" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="time_spent_seconds" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="started_at" type="TIMESTAMP"/>
+            <column name="completed_at" type="TIMESTAMP"/>
+            <column name="last_accessed_at" type="TIMESTAMP"/>
+            <column name="inserted_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="deleted_at" type="TIMESTAMP"/>
+            <column name="inserted_by" type="UUID"/>
+            <column name="updated_by" type="UUID"/>
+            <column name="deleted_by" type="UUID"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="lesson_progress" baseColumnNames="enrollment_id"
+                                 referencedTableName="course_enrollments" referencedColumnNames="id"
+                                 constraintName="fk_lesson_progress_enrollment"/>
+        <addForeignKeyConstraint baseTableName="lesson_progress" baseColumnNames="lesson_id"
+                                 referencedTableName="lessons" referencedColumnNames="id"
+                                 constraintName="fk_lesson_progress_lesson"/>
+        <addUniqueConstraint tableName="lesson_progress" columnNames="enrollment_id, lesson_id"
+                             constraintName="uk_lesson_progress_enrollment_lesson"/>
+        <createIndex tableName="lesson_progress" indexName="idx_lesson_progress_learner_id">
+            <column name="learner_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

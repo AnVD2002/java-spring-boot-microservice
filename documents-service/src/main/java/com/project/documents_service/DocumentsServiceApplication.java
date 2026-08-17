@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import java.util.TimeZone;
+
 @SpringBootApplication
 @ComponentScan(basePackages = {
 		"com.project.documents_service",
@@ -18,6 +20,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class DocumentsServiceApplication {
 
 	public static void main(String[] args) {
+		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
 		SpringApplication.run(DocumentsServiceApplication.class, args);
 	}
 

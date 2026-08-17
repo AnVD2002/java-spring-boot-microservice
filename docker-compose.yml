@@ -1,12 +1,10 @@
-version: "3.9"
-
 networks:
   microservice-network:
     driver: bridge
 
 volumes:
-  postgres-auth-data:
-  postgres-user-data:
+  postgres-data:
+  minio-data:
 
 services:
   # =============================
@@ -62,35 +60,37 @@ services:
     networks:
       - microservice-network
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9002:9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - microservice-network
+
   # =============================
   # DATABASES
   # =============================
 
-  auth-postgres:
+  postgres:
     image: postgres:16
-    container_name: auth-postgres
+    container_name: postgres
     environment:
-      POSTGRES_DB: auth_db
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Haibabon@234
     ports:
       - "5432:5432"
     volumes:
-      - postgres-auth-data:/var/lib/postgresql/data
-    networks:
-      - microservice-network
-
-  user-postgres:
-    image: postgres:16
-    container_name: user-postgres
-    environment:
-      POSTGRES_DB: user_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Haibabon@234
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres-user-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
     networks:
       - microservice-network
 
@@ -132,12 +132,12 @@ services:
     ports:
       - "8081:8081"
     depends_on:
-      - auth-postgres
+      - postgres
       - kafka
       - redis
       - eureka-server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-postgres:5432/auth_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/auth_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: Haibabon@234
 
@@ -158,12 +158,12 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - user-postgres
+      - postgres
       - kafka
       - redis
       - eureka-server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://user-postgres:5432/user_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/user_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: Haibabon@234
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
@@ -186,6 +186,108 @@ services:
       - eureka-server
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    networks:
+      - microservice-network
+
+  # =============================
+  # REPORT SERVICE
+  # =============================
+
+  report-service:
+    build: ./report-service
+    container_name: report-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres
+      - kafka
+      - redis
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/report_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Haibabon@234
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_DATA_REDIS_HOST: redis
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    networks:
+      - microservice-network
+
+  # =============================
+  # DOCUMENTS SERVICE
+  # =============================
+
+  documents-service:
+    build: ./documents-service
+    container_name: documents-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - postgres
+      - kafka
+      - redis
+      - minio
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/documents_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Haibabon@234
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_DATA_REDIS_HOST: redis
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_PUBLIC_ENDPOINT: http://localhost:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: documents
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    networks:
+      - microservice-network
+
+  # =============================
+  # TESTING SERVICE
+  # =============================
+
+  testing-service:
+    build: ./testing-service
+    container_name: testing-service
+    ports:
+      - "8086:8086"
+    depends_on:
+      - postgres
+      - kafka
+      - redis
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/testing_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Haibabon@234
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_DATA_REDIS_HOST: redis
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+    networks:
+      - microservice-network
+
+  # =============================
+  # ELEARNING SERVICE
+  # =============================
+
+  elearning-service:
+    build: ./elearning-service
+    container_name: elearning-service
+    ports:
+      - "8087:8087"
+    depends_on:
+      - postgres
+      - kafka
+      - redis
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/elearning_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Haibabon@234
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_DATA_REDIS_HOST: redis
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     networks:
       - microservice-network

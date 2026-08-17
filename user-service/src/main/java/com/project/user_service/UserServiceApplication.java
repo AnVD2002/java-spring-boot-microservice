@@ -7,6 +7,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import java.util.TimeZone;
+
 @SpringBootApplication
 @ComponentScan(basePackages = {
 		"com.project.user_service",
@@ -30,6 +32,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class UserServiceApplication {
 
 	public static void main(String[] args) {
+		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
 		SpringApplication.run(UserServiceApplication.class, args);
 	}
 

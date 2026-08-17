@@ -57,6 +57,11 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>8.5.17</version>
+		</dependency>
+		<dependency>
 			<groupId>com.project</groupId>
 			<artifactId>common-lib</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
